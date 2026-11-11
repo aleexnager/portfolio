@@ -1,0 +1,403 @@
+---
+// Small, self-explaining animation per project. Pure SVG + CSS (plus SMIL for
+// motion along paths), no inline style attributes, paused when off-screen and
+// frozen under reduced motion by scripts/visuals.ts.
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+
+<div class="pv" data-pv>
+{
+  slug === "mcp-guard" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+  <path class="ln" d="M72 70 H146" />
+  <path class="ln" d="M174 70 C212 70 212 32 246 32" />
+  <path class="ln" d="M174 70 H246" />
+  <path class="ln" d="M174 70 C212 70 212 108 246 108" />
+  <circle class="node" cx="56" cy="70" r="16" />
+  <text class="lbl" x="56" y="74" text-anchor="middle">agent</text>
+  <path class="shield mg-shield" d="M160 48 l16 6 v14 c0 11 -7 18 -16 22 c-9 -4 -16 -11 -16 -22 v-14 z" />
+  <text class="lbl dim" x="160" y="112" text-anchor="middle">policy</text>
+  <rect class="node" x="246" y="22" width="56" height="20" rx="6" /><text class="lbl" x="274" y="36" text-anchor="middle">fs.read</text>
+  <rect class="node" x="246" y="60" width="56" height="20" rx="6" /><text class="lbl" x="274" y="74" text-anchor="middle">db.query</text>
+  <rect class="node mg-bad" x="246" y="98" width="56" height="20" rx="6" /><text class="lbl" x="274" y="112" text-anchor="middle">shell.exec</text>
+  <circle class="pk" opacity="0" r="3.5"><set attributeName="opacity" to="1" begin="0s" /><animateMotion dur="4.5s" begin="0s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.4;1" calcMode="linear" path="M72 70 H160 C212 70 212 32 246 32" /></circle>
+  <circle class="pk" opacity="0" r="3.5"><set attributeName="opacity" to="1" begin="1.5s" /><animateMotion dur="4.5s" begin="1.5s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.4;1" calcMode="linear" path="M72 70 H160 H246" /></circle>
+  <circle class="pk pk-bad" opacity="0" r="3.5"><set attributeName="opacity" to="1" begin="3s" /><animateMotion dur="4.5s" begin="3s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.25;1" calcMode="linear" path="M72 70 H158" /></circle>
+  <path class="mg-x" d="M154 64 l12 12 M166 64 l-12 12" />
+</svg>`} />
+  )
+  : slug === "reversing" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<rect class="rv-bar" x="8" y="9" width="304" height="19" rx="4" />
+<text class="code dim" x="16" y="22">401a10</text><text class="code mid" x="78" y="22">55</text><text class="code" x="170" y="22">push  rbp</text>
+<text class="code dim" x="16" y="41">401a11</text><text class="code mid" x="78" y="41">48 89 e5</text><text class="code" x="170" y="41">mov   rbp, rsp</text>
+<text class="code dim" x="16" y="60">401a14</text><text class="code mid" x="78" y="60">e8 3a 01 00</text><text class="code" x="170" y="60">call  check_key</text>
+<text class="code dim" x="16" y="79">401a19</text><text class="code mid" x="78" y="79">85 c0</text><text class="code" x="170" y="79">test  eax, eax</text>
+<text class="code dim" x="16" y="98">401a1b</text><text class="code rv-old" x="78" y="98">75 1c</text><text class="code rv-old" x="170" y="98">jne   fail</text>
+<text class="code rv-new" x="78" y="98">74 1c</text><text class="code rv-new" x="170" y="98">je    fail</text>
+<text class="code dim" x="16" y="117">401a1d</text><text class="code mid" x="78" y="117">b8 01 00 00</text><text class="code" x="170" y="117">mov   eax, 1</text>
+</svg>`} />
+  )
+  : slug === "redteam" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<text class="code rt rt0 prompt" x="16" y="22">$ nc -lvnp 4444</text>
+<text class="code rt rt1 dim" x="16" y="41">connect to [10.0.0.5] from 10.0.0.23</text>
+<text class="code rt rt2 " x="16" y="60">$ id</text>
+<text class="code rt rt3 dim" x="16" y="79">uid=33(www-data) gid=33(www-data)</text>
+<text class="code rt rt4 " x="16" y="98"># id</text>
+<text class="code rt rt5 hit" x="16" y="117">uid=0(root) gid=0(root)</text>
+</svg>`} />
+  )
+  : slug === "applied-crypto" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<path class="key" d="M14 66 a8 8 0 1 1 0.01 0 M22 66 H38 M32 66 v6 M36 66 v5" />
+<rect class="blk" x="48" y="52" width="26" height="28" rx="5" />
+<text class="code ac-p ac-p0" x="61" y="70" text-anchor="middle">S</text>
+<text class="code ac-c ac-c0" x="61" y="70" text-anchor="middle">9f</text>
+<rect class="blk" x="78" y="52" width="26" height="28" rx="5" />
+<text class="code ac-p ac-p1" x="91" y="70" text-anchor="middle">E</text>
+<text class="code ac-c ac-c1" x="91" y="70" text-anchor="middle">2a</text>
+<rect class="blk" x="108" y="52" width="26" height="28" rx="5" />
+<text class="code ac-p ac-p2" x="121" y="70" text-anchor="middle">C</text>
+<text class="code ac-c ac-c2" x="121" y="70" text-anchor="middle">c4</text>
+<rect class="blk" x="138" y="52" width="26" height="28" rx="5" />
+<text class="code ac-p ac-p3" x="151" y="70" text-anchor="middle">R</text>
+<text class="code ac-c ac-c3" x="151" y="70" text-anchor="middle">71</text>
+<rect class="blk" x="168" y="52" width="26" height="28" rx="5" />
+<text class="code ac-p ac-p4" x="181" y="70" text-anchor="middle">E</text>
+<text class="code ac-c ac-c4" x="181" y="70" text-anchor="middle">e0</text>
+<rect class="blk" x="198" y="52" width="26" height="28" rx="5" />
+<text class="code ac-p ac-p5" x="211" y="70" text-anchor="middle">T</text>
+<text class="code ac-c ac-c5" x="211" y="70" text-anchor="middle">5b</text>
+<rect class="blk" x="228" y="52" width="26" height="28" rx="5" />
+<text class="code ac-p ac-p6" x="241" y="70" text-anchor="middle">S</text>
+<text class="code ac-c ac-c6" x="241" y="70" text-anchor="middle">3d</text>
+<rect class="blk" x="258" y="52" width="26" height="28" rx="5" />
+<text class="code ac-p ac-p7" x="271" y="70" text-anchor="middle">!</text>
+<text class="code ac-c ac-c7" x="271" y="70" text-anchor="middle">a8</text>
+<rect class="blk ac-tag" x="288" y="52" width="26" height="28" rx="5" /><text class="code ac-tag" x="301" y="70" text-anchor="middle">tag</text>
+<rect class="ac-scan" x="44" y="44" width="2" height="44" rx="1" />
+<text class="code dim" x="48" y="108">AES-256-GCM / 96-bit nonce / 128-bit tag</text>
+</svg>`} />
+  )
+  : slug === "tennis" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<text class="code dim tiny" x="16" y="17" text-anchor="end">1</text>
+<text class="code dim tiny" x="16" y="33" text-anchor="end">2</text>
+<text class="code dim tiny" x="16" y="49" text-anchor="end">3</text>
+<text class="code dim tiny" x="16" y="65" text-anchor="end">4</text>
+<text class="code dim tiny" x="16" y="81" text-anchor="end">5</text>
+<text class="code dim tiny" x="16" y="97" text-anchor="end">6</text>
+<text class="code dim tiny" x="16" y="113" text-anchor="end">7</text>
+<text class="code dim tiny" x="16" y="129" text-anchor="end">8</text>
+<path class="ln" d="M24 14 H70 M24 30 H70 M24 46 H70 M24 62 H70 M24 78 H70 M24 94 H70 M24 110 H70 M24 126 H70 M70 14 V30 M70 22 H120 M70 46 V62 M70 54 H120 M70 78 V94 M70 86 H120 M70 110 V126 M70 118 H120 M120 22 V54 M120 38 H170 M120 86 V118 M120 102 H170 M170 38 V102 M170 70 H226" />
+<path class="tn-win" pathLength="100" d="M24 46 H70 V54 H120 V38 H170 V70 H226" />
+<circle class="tn-cup" cx="242" cy="70" r="10" /><path class="tn-star" d="M242 64 l1.8 3.8 4.2 .5 -3.1 2.9 .8 4.1 -3.7 -2 -3.7 2 .8 -4.1 -3.1 -2.9 4.2 -.5 z" />
+<text class="code dim" x="262" y="74">seed 3</text></svg>`} />
+  )
+  : slug === "compiler" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<g class="cp cp-t0"><rect class="blk" x="30" y="10" width="35" height="20" rx="5" /><text class="code" x="47.5" y="24" text-anchor="middle">let</text></g>
+<g class="cp cp-t1"><rect class="blk" x="73" y="10" width="21" height="20" rx="5" /><text class="code" x="83.5" y="24" text-anchor="middle">x</text></g>
+<g class="cp cp-t2"><rect class="blk" x="102" y="10" width="21" height="20" rx="5" /><text class="code" x="112.5" y="24" text-anchor="middle">=</text></g>
+<g class="cp cp-t3"><rect class="blk" x="131" y="10" width="21" height="20" rx="5" /><text class="code" x="141.5" y="24" text-anchor="middle">a</text></g>
+<g class="cp cp-t4"><rect class="blk" x="160" y="10" width="21" height="20" rx="5" /><text class="code" x="170.5" y="24" text-anchor="middle">+</text></g>
+<g class="cp cp-t5"><rect class="blk" x="189" y="10" width="21" height="20" rx="5" /><text class="code" x="199.5" y="24" text-anchor="middle">2</text></g>
+<g class="cp cp-t6"><rect class="blk" x="218" y="10" width="21" height="20" rx="5" /><text class="code" x="228.5" y="24" text-anchor="middle">;</text></g>
+<g class="cp cp-n0"><circle class="node" cx="160" cy="56" r="10" /><text class="code hit" x="160" y="60" text-anchor="middle">=</text></g>
+<path class="ln cp cp-n1" d="M160 65 L112 83" />
+<g class="cp cp-n1"><circle class="node" cx="112" cy="92" r="10" /><text class="code hit" x="112" y="96" text-anchor="middle">x</text></g>
+<path class="ln cp cp-n2" d="M160 65 L208 83" />
+<g class="cp cp-n2"><circle class="node" cx="208" cy="92" r="10" /><text class="code hit" x="208" y="96" text-anchor="middle">+</text></g>
+<path class="ln cp cp-n3" d="M208 101 L180 115" />
+<g class="cp cp-n3"><circle class="node" cx="180" cy="124" r="10" /><text class="code hit" x="180" y="128" text-anchor="middle">a</text></g>
+<path class="ln cp cp-n4" d="M208 101 L236 115" />
+<g class="cp cp-n4"><circle class="node" cx="236" cy="124" r="10" /><text class="code hit" x="236" y="128" text-anchor="middle">2</text></g>
+</svg>`} />
+  )
+  : slug === "minishell" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+  <text class="code" x="16" y="24"><tspan class="hit">$</tspan> cat app.log | grep ERR | wc -l</text>
+  <rect class="node" x="18" y="56" width="64" height="30" rx="7" /><text class="code" x="50" y="75" text-anchor="middle">cat</text>
+  <rect class="node" x="128" y="56" width="64" height="30" rx="7" /><text class="code" x="160" y="75" text-anchor="middle">grep</text>
+  <rect class="node" x="238" y="56" width="64" height="30" rx="7" /><text class="code" x="270" y="75" text-anchor="middle">wc</text>
+  <path class="pipe" d="M82 71 H128 M192 71 H238" />
+  <text class="code dim tiny" x="105" y="100" text-anchor="middle">fd 1 → 0</text>
+  <text class="code dim tiny" x="215" y="100" text-anchor="middle">fd 1 → 0</text>
+  <text class="code ms-out" x="16" y="126">42</text>
+</svg>`} />
+  )
+  : slug === "distributed" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<path class="ln" d="M40 30 L160 70" />
+<path class="ln" d="M40 110 L160 70" />
+<path class="ln" d="M280 30 L160 70" />
+<path class="ln" d="M280 110 L160 70" />
+<rect class="node srv" x="136" y="54" width="48" height="32" rx="7" /><text class="code" x="160" y="74" text-anchor="middle">srv</text>
+<circle class="node" cx="40" cy="30" r="9" /><text class="code dim tiny" x="40" y="16" text-anchor="middle">c1</text>
+<circle class="pk" opacity="0" r="3"><set attributeName="opacity" to="1" begin="0.0s" /><animateMotion dur="3.6s" begin="0.0s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.35;1" calcMode="linear" path="M40 30 L160 70" /></circle>
+<circle class="pk pk-alt" opacity="0" r="3"><set attributeName="opacity" to="1" begin="1.4s" /><animateMotion dur="3.6s" begin="1.4s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.35;1" calcMode="linear" path="M160 70 L40 30" /></circle>
+<circle class="node" cx="40" cy="110" r="9" /><text class="code dim tiny" x="40" y="132" text-anchor="middle">c2</text>
+<circle class="pk" opacity="0" r="3"><set attributeName="opacity" to="1" begin="0.9s" /><animateMotion dur="3.6s" begin="0.9s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.35;1" calcMode="linear" path="M40 110 L160 70" /></circle>
+<circle class="pk pk-alt" opacity="0" r="3"><set attributeName="opacity" to="1" begin="2.3s" /><animateMotion dur="3.6s" begin="2.3s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.35;1" calcMode="linear" path="M160 70 L40 110" /></circle>
+<circle class="node" cx="280" cy="30" r="9" /><text class="code dim tiny" x="280" y="16" text-anchor="middle">c3</text>
+<circle class="pk" opacity="0" r="3"><set attributeName="opacity" to="1" begin="1.8s" /><animateMotion dur="3.6s" begin="1.8s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.35;1" calcMode="linear" path="M280 30 L160 70" /></circle>
+<circle class="pk pk-alt" opacity="0" r="3"><set attributeName="opacity" to="1" begin="3.2s" /><animateMotion dur="3.6s" begin="3.2s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.35;1" calcMode="linear" path="M160 70 L280 30" /></circle>
+<circle class="node" cx="280" cy="110" r="9" /><text class="code dim tiny" x="280" y="132" text-anchor="middle">c4</text>
+<circle class="pk" opacity="0" r="3"><set attributeName="opacity" to="1" begin="2.7s" /><animateMotion dur="3.6s" begin="2.7s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.35;1" calcMode="linear" path="M280 110 L160 70" /></circle>
+<circle class="pk pk-alt" opacity="0" r="3"><set attributeName="opacity" to="1" begin="4.1s" /><animateMotion dur="3.6s" begin="4.1s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.35;1" calcMode="linear" path="M160 70 L280 110" /></circle>
+</svg>`} />
+  )
+  : slug === "m88110" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<rect class="cz-hl cz-h0" x="20" y="22" width="85" height="24" rx="5" />
+<g class="cz cz-t0"><rect class="blk" x="70" y="82" width="38" height="26" rx="6" /><text class="code hit" x="89" y="99" text-anchor="middle">5A</text></g>
+<rect class="cz-hl cz-h1" x="105" y="22" width="51" height="24" rx="5" />
+<g class="cz cz-t1"><rect class="blk" x="118" y="82" width="38" height="26" rx="6" /><text class="code hit" x="137" y="99" text-anchor="middle">3B</text></g>
+<rect class="cz-hl cz-h2" x="156" y="22" width="102" height="24" rx="5" />
+<g class="cz cz-t2"><rect class="blk" x="166" y="82" width="38" height="26" rx="6" /><text class="code hit" x="185" y="99" text-anchor="middle">6C</text></g>
+<rect class="cz-hl cz-h3" x="258" y="22" width="34" height="24" rx="5" />
+<g class="cz cz-t3"><rect class="blk" x="214" y="82" width="38" height="26" rx="6" /><text class="code hit" x="233" y="99" text-anchor="middle">2D</text></g>
+<text class="code" x="28.5" y="39" text-anchor="middle">A</text>
+<text class="code" x="45.5" y="39" text-anchor="middle">A</text>
+<text class="code" x="62.5" y="39" text-anchor="middle">A</text>
+<text class="code" x="79.5" y="39" text-anchor="middle">A</text>
+<text class="code" x="96.5" y="39" text-anchor="middle">A</text>
+<text class="code" x="113.5" y="39" text-anchor="middle">B</text>
+<text class="code" x="130.5" y="39" text-anchor="middle">B</text>
+<text class="code" x="147.5" y="39" text-anchor="middle">B</text>
+<text class="code" x="164.5" y="39" text-anchor="middle">C</text>
+<text class="code" x="181.5" y="39" text-anchor="middle">C</text>
+<text class="code" x="198.5" y="39" text-anchor="middle">C</text>
+<text class="code" x="215.5" y="39" text-anchor="middle">C</text>
+<text class="code" x="232.5" y="39" text-anchor="middle">C</text>
+<text class="code" x="249.5" y="39" text-anchor="middle">C</text>
+<text class="code" x="266.5" y="39" text-anchor="middle">D</text>
+<text class="code" x="283.5" y="39" text-anchor="middle">D</text>
+<text class="code dim" x="20" y="130">16 bytes in</text><text class="code dim" x="300" y="130" text-anchor="end">8 bytes out</text>
+</svg>`} />
+  )
+  : slug === "io-interrupts" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+  <text class="code dim tiny" x="10" y="30">TxD</text>
+  <text class="code dim tiny" x="10" y="84">IRQ</text>
+  <g class="io-scroll"><path class="io-wave" d="M0 40 H20 V64 H40 V40 H60 H80 V64 H100 H120 V40 H140 V64 H160 V40 H180 H200 H220 V64 H240 V40 H260 V64 H280 H300 V40 H320 H340 V64 H360 V40 H380 H400 V64 H420 H440 V40 H460 V64 H480 V40 H500 H520 H540 V64 H560 V40 H580 V64 H600 H620 V40 H640" /><path class="io-irq" d="M0 104 H34 V88 H40 V104 H114 V88 H120 V104 H194 V88 H200 V104 H274 V88 H280 V104 H354 V88 H360 V104 H434 V88 H440 V104 H514 V88 H520 V104 H594 V88 H600 V104 H640" /></g>
+  <text class="code dim" x="310" y="128" text-anchor="end">MC68681 DUART</text>
+</svg>`} />
+  )
+  : slug === "racecourse" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<path class="ln" d="M20 18 H300 M20 46 H300 M20 74 H300 M20 102 H300 M20 130 H300" />
+<path class="rc-finish" d="M290 18 V130" />
+<g class="rc rc0"><circle class="node rc-h" cx="30" cy="32" r="9" /><text class="code tiny" x="30" y="35" text-anchor="middle">T1</text></g>
+<g class="rc rc1"><circle class="node rc-h" cx="30" cy="60" r="9" /><text class="code tiny" x="30" y="63" text-anchor="middle">T2</text></g>
+<g class="rc rc2"><circle class="node rc-h" cx="30" cy="88" r="9" /><text class="code tiny" x="30" y="91" text-anchor="middle">T3</text></g>
+<g class="rc rc3"><circle class="node rc-h" cx="30" cy="116" r="9" /><text class="code tiny" x="30" y="119" text-anchor="middle">T4</text></g>
+<text class="code hit rc-win" x="300" y="12" text-anchor="end">T3 wins</text>
+</svg>`} />
+  )
+  : slug === "shell-automation" ? (
+    <Fragment set:html={`<svg viewBox="0 0 320 140" aria-hidden="true">
+<text class="code" x="16" y="22"><tspan class="hit">$</tspan> ./autoUpdate.sh</text>
+<text class="code dim" x="16" y="50">apt update</text><rect class="bar-bg" x="120" y="41" width="180" height="10" rx="5" /><rect class="bar sa0" x="120" y="41" width="180" height="10" rx="5" />
+<text class="code dim" x="16" y="74">apt upgrade</text><rect class="bar-bg" x="120" y="65" width="180" height="10" rx="5" /><rect class="bar sa1" x="120" y="65" width="180" height="10" rx="5" />
+<text class="code dim" x="16" y="98">wsl --update</text><rect class="bar-bg" x="120" y="89" width="180" height="10" rx="5" /><rect class="bar sa2" x="120" y="89" width="180" height="10" rx="5" />
+<g class="sa-done"><path class="sa-check" d="M18 122 l4 4 8 -9" /><text class="code hit" x="38" y="126">system up to date</text></g>
+</svg>`} />
+  )
+  : slug === "astar" ? (
+    <Fragment set:html={`<canvas class="astar" width="320" height="140" data-astar aria-hidden="true"></canvas>`} />
+  )
+  : null
+}
+</div>
+
+<style>
+  .pv {
+    position: relative;
+    height: 8.75rem;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(120% 90% at 50% 0%, color-mix(in oklab, var(--tint) 14%, transparent), transparent 70%),
+      radial-gradient(circle, rgb(255 255 255 / 0.05) 1px, transparent 1.5px) 0 0 / 14px 14px,
+      var(--bg);
+    color: var(--text);
+  }
+
+  .pv :global(svg),
+  .pv :global(canvas) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .pv:not(:global(.is-playing)) :global(*) {
+    animation-play-state: paused !important;
+  }
+
+  .pv :global(.ln) { fill: none; stroke: rgb(255 255 255 / 0.14); stroke-width: 1.5; }
+  .pv :global(.node) { fill: var(--surface-2); stroke: rgb(255 255 255 / 0.18); stroke-width: 1; }
+  .pv :global(.blk) { fill: var(--surface-2); stroke: rgb(255 255 255 / 0.14); stroke-width: 1; }
+  .pv :global(.shield) { fill: color-mix(in oklab, var(--tint) 20%, transparent); stroke: var(--tint); stroke-width: 1.5; }
+  .pv :global(.key) { fill: none; stroke: var(--tint); stroke-width: 2; stroke-linecap: round; }
+  .pv :global(.pk) { fill: var(--tint); }
+  .pv :global(.lbl) { font: 500 9px var(--font-mono); fill: var(--text-muted); }
+  .pv :global(.code) { font: 500 10.5px var(--font-mono); fill: var(--text); }
+  .pv :global(.tiny) { font-size: 8.5px; }
+  .pv :global(.dim) { fill: var(--text-subtle); }
+  .pv :global(.mid) { fill: var(--text-muted); }
+  .pv :global(.hit) { fill: var(--tint); }
+</style>
+
+<style is:global>
+  @keyframes mg-flash { 0%, 100% { opacity: 0; } 58%, 72% { opacity: 1; } }
+  .pv .mg-x { stroke: #fb7185; stroke-width: 2.5; stroke-linecap: round; opacity: 0; animation: mg-flash 4.5s linear infinite; }
+  .pv .mg-bad { stroke: rgb(251 113 133 / 0.5); }
+  .pv .pk-bad { fill: #fb7185; }
+  @keyframes rv-step { 0%, 12% { transform: translateY(0); } 13%, 24% { transform: translateY(19px); } 25%, 36% { transform: translateY(38px); } 37%, 48% { transform: translateY(57px); } 49%, 92% { transform: translateY(76px); } 93%, 100% { transform: translateY(0); } }
+  .pv .rv-bar { fill: color-mix(in oklab, var(--tint) 18%, transparent); stroke: color-mix(in oklab, var(--tint) 45%, transparent); animation: rv-step 7s steps(1) infinite; }
+  @keyframes rv-in { 0%, 60% { opacity: 0; } 62%, 90% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes rv-out { 0%, 60% { opacity: 1; } 62%, 90% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .rv-new { fill: var(--tint); font-weight: 600; opacity: 0; animation: rv-in 7s linear infinite; }
+  .pv .rv-old { animation: rv-out 7s linear infinite; }
+  @keyframes rt0 { 0%, 3% { clip-path: inset(0 100% 0 0); } 9%, 88% { clip-path: inset(0 0 0 0); } 92%, 100% { clip-path: inset(0 100% 0 0); } }
+  .pv .rt0 { animation: rt0 9s steps(24) infinite; }
+  @keyframes rt1 { 0%, 14% { clip-path: inset(0 100% 0 0); } 20%, 88% { clip-path: inset(0 0 0 0); } 92%, 100% { clip-path: inset(0 100% 0 0); } }
+  .pv .rt1 { animation: rt1 9s steps(24) infinite; }
+  @keyframes rt2 { 0%, 30% { clip-path: inset(0 100% 0 0); } 36%, 88% { clip-path: inset(0 0 0 0); } 92%, 100% { clip-path: inset(0 100% 0 0); } }
+  .pv .rt2 { animation: rt2 9s steps(24) infinite; }
+  @keyframes rt3 { 0%, 38% { clip-path: inset(0 100% 0 0); } 44%, 88% { clip-path: inset(0 0 0 0); } 92%, 100% { clip-path: inset(0 100% 0 0); } }
+  .pv .rt3 { animation: rt3 9s steps(24) infinite; }
+  @keyframes rt4 { 0%, 58% { clip-path: inset(0 100% 0 0); } 64%, 88% { clip-path: inset(0 0 0 0); } 92%, 100% { clip-path: inset(0 100% 0 0); } }
+  .pv .rt4 { animation: rt4 9s steps(24) infinite; }
+  @keyframes rt5 { 0%, 66% { clip-path: inset(0 100% 0 0); } 72%, 88% { clip-path: inset(0 0 0 0); } 92%, 100% { clip-path: inset(0 100% 0 0); } }
+  .pv .rt5 { animation: rt5 9s steps(24) infinite; }
+  .pv .rt.prompt { fill: var(--tint); }
+  .pv .rt.hit { fill: var(--tint); font-weight: 600; }
+  @keyframes ac-c0 { 0%, 8% { opacity: 0; } 11%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes ac-p0 { 0%, 8% { opacity: 1; } 11%, 88% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .ac-c0 { animation: ac-c0 8s linear infinite; }
+  .pv .ac-p0 { animation: ac-p0 8s linear infinite; }
+  @keyframes ac-c1 { 0%, 16% { opacity: 0; } 19%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes ac-p1 { 0%, 16% { opacity: 1; } 19%, 88% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .ac-c1 { animation: ac-c1 8s linear infinite; }
+  .pv .ac-p1 { animation: ac-p1 8s linear infinite; }
+  @keyframes ac-c2 { 0%, 24% { opacity: 0; } 27%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes ac-p2 { 0%, 24% { opacity: 1; } 27%, 88% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .ac-c2 { animation: ac-c2 8s linear infinite; }
+  .pv .ac-p2 { animation: ac-p2 8s linear infinite; }
+  @keyframes ac-c3 { 0%, 32% { opacity: 0; } 35%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes ac-p3 { 0%, 32% { opacity: 1; } 35%, 88% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .ac-c3 { animation: ac-c3 8s linear infinite; }
+  .pv .ac-p3 { animation: ac-p3 8s linear infinite; }
+  @keyframes ac-c4 { 0%, 40% { opacity: 0; } 43%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes ac-p4 { 0%, 40% { opacity: 1; } 43%, 88% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .ac-c4 { animation: ac-c4 8s linear infinite; }
+  .pv .ac-p4 { animation: ac-p4 8s linear infinite; }
+  @keyframes ac-c5 { 0%, 48% { opacity: 0; } 51%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes ac-p5 { 0%, 48% { opacity: 1; } 51%, 88% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .ac-c5 { animation: ac-c5 8s linear infinite; }
+  .pv .ac-p5 { animation: ac-p5 8s linear infinite; }
+  @keyframes ac-c6 { 0%, 56% { opacity: 0; } 59%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes ac-p6 { 0%, 56% { opacity: 1; } 59%, 88% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .ac-c6 { animation: ac-c6 8s linear infinite; }
+  .pv .ac-p6 { animation: ac-p6 8s linear infinite; }
+  @keyframes ac-c7 { 0%, 64% { opacity: 0; } 67%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  @keyframes ac-p7 { 0%, 64% { opacity: 1; } 67%, 88% { opacity: 0; } 93%, 100% { opacity: 1; } }
+  .pv .ac-c7 { animation: ac-c7 8s linear infinite; }
+  .pv .ac-p7 { animation: ac-p7 8s linear infinite; }
+  @keyframes ac-tag { 0%, 74% { opacity: 0; } 78%, 88% { opacity: 1; } 93%, 100% { opacity: 0; } }
+  .pv .ac-tag { opacity: 0; animation: ac-tag 8s linear infinite; fill: var(--tint); }
+  .pv rect.ac-tag { fill: color-mix(in oklab, var(--tint) 18%, transparent); stroke: var(--tint); }
+  @keyframes ac-scan { 0%, 6% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 72% { transform: translateX(240px); opacity: 1; } 74%, 100% { transform: translateX(240px); opacity: 0; } }
+  .pv .ac-scan { fill: var(--tint); animation: ac-scan 8s linear infinite; }
+  .pv .ac-c { fill: var(--tint); }
+  @keyframes tn-draw { 0%, 5% { stroke-dashoffset: 100; } 70%, 90% { stroke-dashoffset: 0; } 96%, 100% { stroke-dashoffset: 100; } }
+  .pv .tn-win { fill: none; stroke: var(--tint); stroke-width: 2.5; stroke-linejoin: round; stroke-dasharray: 100; animation: tn-draw 6s var(--ease-in-out) infinite; }
+  @keyframes tn-cup { 0%, 68% { opacity: 0; } 72%, 90% { opacity: 1; } 96%, 100% { opacity: 0; } }
+  .pv .tn-cup { fill: color-mix(in oklab, var(--tint) 20%, transparent); stroke: var(--tint); }
+  .pv .tn-star { fill: var(--tint); opacity: 0; animation: tn-cup 6s linear infinite; }
+  @keyframes cp-t0 { 0%, 3% { opacity: 0; } 6%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-t0 { animation: cp-t0 8s linear infinite; }
+  @keyframes cp-t1 { 0%, 7% { opacity: 0; } 10%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-t1 { animation: cp-t1 8s linear infinite; }
+  @keyframes cp-t2 { 0%, 11% { opacity: 0; } 14%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-t2 { animation: cp-t2 8s linear infinite; }
+  @keyframes cp-t3 { 0%, 15% { opacity: 0; } 18%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-t3 { animation: cp-t3 8s linear infinite; }
+  @keyframes cp-t4 { 0%, 19% { opacity: 0; } 22%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-t4 { animation: cp-t4 8s linear infinite; }
+  @keyframes cp-t5 { 0%, 23% { opacity: 0; } 26%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-t5 { animation: cp-t5 8s linear infinite; }
+  @keyframes cp-t6 { 0%, 27% { opacity: 0; } 30%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-t6 { animation: cp-t6 8s linear infinite; }
+  @keyframes cp-n0 { 0%, 36% { opacity: 0; } 40%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-n0 { animation: cp-n0 8s linear infinite; }
+  @keyframes cp-n1 { 0%, 44% { opacity: 0; } 48%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-n1 { animation: cp-n1 8s linear infinite; }
+  @keyframes cp-n2 { 0%, 52% { opacity: 0; } 56%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-n2 { animation: cp-n2 8s linear infinite; }
+  @keyframes cp-n3 { 0%, 60% { opacity: 0; } 64%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-n3 { animation: cp-n3 8s linear infinite; }
+  @keyframes cp-n4 { 0%, 66% { opacity: 0; } 70%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cp-n4 { animation: cp-n4 8s linear infinite; }
+  .pv .cp { opacity: 0; }
+  .pv .cp text.hit { fill: var(--tint); }
+  @keyframes flow { to { stroke-dashoffset: -16; } }
+  .pv .pipe { fill: none; stroke: var(--tint); stroke-width: 3; stroke-dasharray: 4 4; stroke-linecap: round; animation: flow 0.6s linear infinite; }
+  @keyframes ms-out { 0%, 55% { opacity: 0; } 58%, 90% { opacity: 1; } 95%, 100% { opacity: 0; } }
+  .pv .ms-out { fill: var(--tint); font-weight: 600; opacity: 0; animation: ms-out 5s linear infinite; }
+  .pv .pk-alt { fill: var(--text); }
+  .pv .srv { stroke: var(--tint); }
+  @keyframes cz-h0 { 0%, 8% { opacity: 0; } 11%, 22% { opacity: 1; } 25%, 100% { opacity: 0; } }
+  .pv .cz-h0 { animation: cz-h0 7s linear infinite; }
+  @keyframes cz-t0 { 0%, 12% { opacity: 0; } 15%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cz-t0 { animation: cz-t0 7s linear infinite; }
+  @keyframes cz-h1 { 0%, 26% { opacity: 0; } 29%, 40% { opacity: 1; } 43%, 100% { opacity: 0; } }
+  .pv .cz-h1 { animation: cz-h1 7s linear infinite; }
+  @keyframes cz-t1 { 0%, 30% { opacity: 0; } 33%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cz-t1 { animation: cz-t1 7s linear infinite; }
+  @keyframes cz-h2 { 0%, 44% { opacity: 0; } 47%, 58% { opacity: 1; } 61%, 100% { opacity: 0; } }
+  .pv .cz-h2 { animation: cz-h2 7s linear infinite; }
+  @keyframes cz-t2 { 0%, 48% { opacity: 0; } 51%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cz-t2 { animation: cz-t2 7s linear infinite; }
+  @keyframes cz-h3 { 0%, 62% { opacity: 0; } 65%, 76% { opacity: 1; } 79%, 100% { opacity: 0; } }
+  .pv .cz-h3 { animation: cz-h3 7s linear infinite; }
+  @keyframes cz-t3 { 0%, 66% { opacity: 0; } 69%, 88% { opacity: 1; } 94%, 100% { opacity: 0; } }
+  .pv .cz-t3 { animation: cz-t3 7s linear infinite; }
+  .pv .cz-hl { fill: color-mix(in oklab, var(--tint) 22%, transparent); opacity: 0; }
+  .pv .cz { opacity: 0; }
+  .pv .cz text.hit { fill: var(--tint); }
+  @keyframes io-scroll { from { transform: translateX(0); } to { transform: translateX(-320px); } }
+  .pv .io-scroll { animation: io-scroll 6s linear infinite; }
+  .pv .io-wave { fill: none; stroke: var(--tint); stroke-width: 2; }
+  .pv .io-irq { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
+  @keyframes rc0 { 0%, 4% { transform: translateX(0); } 52%, 90% { transform: translateX(250px); } 96%, 100% { transform: translateX(0); } }
+  .pv .rc0 { animation: rc0 6s cubic-bezier(.4,.1,.6,.95) infinite; }
+  @keyframes rc1 { 0%, 4% { transform: translateX(0); } 66%, 90% { transform: translateX(250px); } 96%, 100% { transform: translateX(0); } }
+  .pv .rc1 { animation: rc1 6s cubic-bezier(.4,.1,.6,.95) infinite; }
+  @keyframes rc2 { 0%, 4% { transform: translateX(0); } 46%, 90% { transform: translateX(250px); } 96%, 100% { transform: translateX(0); } }
+  .pv .rc2 { animation: rc2 6s cubic-bezier(.4,.1,.6,.95) infinite; }
+  @keyframes rc3 { 0%, 4% { transform: translateX(0); } 78%, 90% { transform: translateX(250px); } 96%, 100% { transform: translateX(0); } }
+  .pv .rc3 { animation: rc3 6s cubic-bezier(.4,.1,.6,.95) infinite; }
+  @keyframes rc-win { 0%, 46% { opacity: 0; } 49%, 90% { opacity: 1; } 96%, 100% { opacity: 0; } }
+  .pv .rc-win { fill: var(--tint); opacity: 0; animation: rc-win 6s linear infinite; }
+  .pv .rc-finish { stroke: var(--tint); stroke-width: 2; stroke-dasharray: 3 3; }
+  .pv .rc2 .rc-h { stroke: var(--tint); }
+  @keyframes sa0 { 0%, 10% { transform: scaleX(0); } 30%, 90% { transform: scaleX(1); } 95%, 100% { transform: scaleX(0); } }
+  .pv .sa0 { transform-box: fill-box; transform-origin: left; animation: sa0 7s var(--ease-out) infinite; }
+  @keyframes sa1 { 0%, 34% { transform: scaleX(0); } 54%, 90% { transform: scaleX(1); } 95%, 100% { transform: scaleX(0); } }
+  .pv .sa1 { transform-box: fill-box; transform-origin: left; animation: sa1 7s var(--ease-out) infinite; }
+  @keyframes sa2 { 0%, 58% { transform: scaleX(0); } 78%, 90% { transform: scaleX(1); } 95%, 100% { transform: scaleX(0); } }
+  .pv .sa2 { transform-box: fill-box; transform-origin: left; animation: sa2 7s var(--ease-out) infinite; }
+  @keyframes sa-done { 0%, 80% { opacity: 0; } 83%, 90% { opacity: 1; } 95%, 100% { opacity: 0; } }
+  .pv .bar-bg { fill: rgb(255 255 255 / 0.06); }
+  .pv .bar { fill: var(--tint); }
+  .pv .sa-done { opacity: 0; animation: sa-done 7s linear infinite; }
+  .pv .sa-check { fill: none; stroke: var(--tint); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .pv .sa-done text.hit { fill: var(--tint); }
+</style>

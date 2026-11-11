@@ -374,7 +374,7 @@ ol {
   padding: 1px;
   background: radial-gradient(
     22rem circle at var(--mx) var(--my),
-    var(--accent-line),
+    var(--spot-line, var(--accent-line)),
     transparent 60%
   );
   -webkit-mask:

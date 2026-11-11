@@ -5,8 +5,9 @@
 export const profile = {
   name: "Alejandro Náger",
   fullName: "Alejandro Náger Fernández-Calvo",
-  role: "Cybersecurity Risk Analyst",
-  company: "PwC Spain",
+  role: "Cybersecurity Consultant",
+  company: "Minsait",
+  group: "Indra Group",
   location: "Madrid, Spain",
   email: "a.nager@me.com",
   github: "https://github.com/aleexnager",
@@ -26,14 +27,33 @@ export type Experience = {
   summary: string;
   highlights: string[];
   stack: string[];
+  // Earlier titles in the same company, oldest first.
+  previousRoles?: string[];
 };
 
 export const experience: Experience[] = [
   {
+    company: "Minsait, an Indra Group company",
+    role: "Cybersecurity Consultant",
+    previousRoles: ["Security Analyst"],
+    start: "2026-09",
+    end: null,
+    location: "Madrid",
+    summary:
+      "Identity and access management for a large enterprise client in Indra Group's cybersecurity practice. Joined as Security Analyst and was promoted to Consultant within the first months.",
+    highlights: [
+      "Design and run the identity lifecycle (joiner, mover, leaver) so access follows people and is revoked on time.",
+      "Model role-based access and segregation-of-duties rules to enforce least privilege on critical applications.",
+      "Run access recertification campaigns and turn the findings into remediation plans with business owners.",
+      "Strengthen authentication with SSO and MFA and cut standing privileged access.",
+    ],
+    stack: ["IAM", "IGA", "RBAC", "SoD", "SSO", "MFA", "PAM"],
+  },
+  {
     company: "PwC",
     role: "Cybersecurity Risk Analyst",
     start: "2025-08",
-    end: null,
+    end: "2026-08",
     location: "Madrid",
     summary:
       "Cyber risk, IT audit and GRC engagements for large organisations, including critical-infrastructure operators.",
@@ -128,12 +148,15 @@ export type Project = {
   live?: string;
   // Screenshot file name in src/assets/shots (portrait phone capture).
   shot?: "temazos" | "recipemaker" | "cronowork";
+  // Subtle per-project colour for the card visual and hover edge.
+  tint: string;
   status?: "In progress" | "Private code";
 };
 
 export const projects: Project[] = [
   {
     slug: "mcp-guard",
+    tint: "#a78bfa",
     title: "MCP Guard",
     blurb: "Master's thesis. Security controls for AI agents that call tools through the Model Context Protocol.",
     category: "security",
@@ -143,6 +166,7 @@ export const projects: Project[] = [
   },
   {
     slug: "temazos",
+    tint: "#f472b6",
     title: "Temazos",
     blurb: "Multiplayer music party game. Peer-to-peer rooms over WebRTC with a host-authoritative rules engine, 816 curated songs and QR join.",
     category: "apps",
@@ -154,6 +178,7 @@ export const projects: Project[] = [
   },
   {
     slug: "recipemaker",
+    tint: "#4ade80",
     title: "RecipeMaker",
     blurb: "Pantry-aware recipe planner. Scan barcodes, track kitchen tools and see what you can cook now, with nutrition per serving. Fully offline.",
     category: "apps",
@@ -165,6 +190,7 @@ export const projects: Project[] = [
   },
   {
     slug: "cronowork",
+    tint: "#fb923c",
     title: "CronoWork",
     blurb: "Installable interval timer for the gym. Zero dependencies, offline service worker, Wake Lock and per-phase audio cues.",
     category: "apps",
@@ -176,6 +202,7 @@ export const projects: Project[] = [
   },
   {
     slug: "reversing",
+    tint: "#fbbf24",
     title: "Reverse engineering and exploiting",
     blurb: "Crackmes, a real .NET malware sample and ransomware challenges, then exploitation of legacy Windows hosts with Metasploit.",
     category: "security",
@@ -185,6 +212,7 @@ export const projects: Project[] = [
   },
   {
     slug: "redteam",
+    tint: "#fb7185",
     title: "Red team and purple team",
     blurb: "Command injection, file inclusion and SSI on bWAPP, reverse shells and privilege escalation to full control, with the matching fixes.",
     category: "security",
@@ -194,6 +222,7 @@ export const projects: Project[] = [
   },
   {
     slug: "applied-crypto",
+    tint: "#2dd4bf",
     title: "Applied cryptography",
     blurb: "Key derivation for per-file encryption, authenticated encryption with AES-GCM and elliptic-curve signatures with OpenSSL.",
     category: "security",
@@ -203,6 +232,7 @@ export const projects: Project[] = [
   },
   {
     slug: "tennis",
+    tint: "#7dd3fc",
     title: "Tennis tournament manager",
     blurb: "Web app to create and run tennis tournaments, built for the Software Engineering course at UPM.",
     category: "apps",
@@ -212,6 +242,7 @@ export const projects: Project[] = [
   },
   {
     slug: "compiler",
+    tint: "#93c5fd",
     title: "Language processor",
     blurb: "Compiler for a JavaScript subset in C: lexer, parser, semantic analysis and symbol tables.",
     category: "algorithms",
@@ -221,6 +252,7 @@ export const projects: Project[] = [
   },
   {
     slug: "minishell",
+    tint: "#fdba74",
     title: "Minishell",
     blurb: "A working UNIX shell in C with pipes, redirections and background jobs. Code kept private under university policy.",
     category: "systems",
@@ -230,6 +262,7 @@ export const projects: Project[] = [
   },
   {
     slug: "distributed",
+    tint: "#67e8f9",
     title: "Distributed systems",
     blurb: "Client and server components over raw sockets, with shared protocol code and file transfer.",
     category: "systems",
@@ -239,6 +272,7 @@ export const projects: Project[] = [
   },
   {
     slug: "m88110",
+    tint: "#f9a8d4",
     title: "Text compressor in assembly",
     blurb: "A complete data compressor written in Motorola 88110 assembly.",
     category: "systems",
@@ -248,6 +282,7 @@ export const projects: Project[] = [
   },
   {
     slug: "io-interrupts",
+    tint: "#fde047",
     title: "Interrupt-driven I/O",
     blurb: "Input and output module for the MC68681 DUART, driven by interrupts in assembly.",
     category: "systems",
@@ -257,6 +292,7 @@ export const projects: Project[] = [
   },
   {
     slug: "racecourse",
+    tint: "#6ee7b7",
     title: "Threaded racecourse",
     blurb: "Terminal race game where every horse is a thread, synchronised with semaphores.",
     category: "systems",
@@ -266,6 +302,7 @@ export const projects: Project[] = [
   },
   {
     slug: "astar",
+    tint: "#f0abfc",
     title: "A* on the Lyon metro",
     blurb: "Shortest-path search across the Lyon metro network with an admissible heuristic.",
     category: "algorithms",
@@ -275,6 +312,7 @@ export const projects: Project[] = [
   },
   {
     slug: "shell-automation",
+    tint: "#cbd5e1",
     title: "Shell automation",
     blurb: "Self-updating script for Linux and WSL plus a reproducible terminal environment with one setup command.",
     category: "systems",
@@ -284,51 +322,89 @@ export const projects: Project[] = [
   },
 ];
 
-// Homelab diagram. Edit freely: the diagram renders whatever is listed here.
+// Homelab. Edit freely: the diagram renders whatever is listed here.
+// `reach` lists the service ids a VLAN is allowed to talk to.
+export type Service = { id: string; name: string; role: string };
+
 export const homelab = {
-  host: { name: "Proxmox VE", detail: "Single-node hypervisor" },
+  host: { name: "Proxmox VE", detail: "LXC containers, Docker and VMs" },
   edge: { name: "Firewall", detail: "Inter-VLAN policy, default deny" },
-  segments: [
+  groups: [
     {
-      id: "core",
-      name: "Core services",
-      vlan: 10,
-      policy: "Serves DNS, reverse proxy and VPN to trusted segments.",
-      nodes: [
-        { name: "DNS filtering", kind: "LXC" },
-        { name: "Reverse proxy + TLS", kind: "LXC" },
-        { name: "VPN gateway", kind: "LXC" },
+      name: "Network and access",
+      services: [
+        { id: "adguard", name: "AdGuard Home", role: "DNS filtering" },
+        { id: "npm", name: "Nginx Proxy Manager", role: "Reverse proxy and TLS" },
+        { id: "tailscale", name: "Tailscale", role: "Remote access" },
       ],
     },
     {
-      id: "ops",
-      name: "Observability",
-      vlan: 20,
-      policy: "Pulls metrics from all segments. Nothing initiates into it.",
-      nodes: [
-        { name: "Metrics and dashboards", kind: "LXC" },
-        { name: "Backups", kind: "VM" },
+      name: "Private cloud",
+      services: [
+        { id: "nextcloud", name: "Nextcloud", role: "Files and NAS" },
+        { id: "immich", name: "Immich", role: "Photo library" },
+        { id: "vaultwarden", name: "Vaultwarden", role: "Passwords" },
+        { id: "forgejo", name: "Forgejo", role: "Private Git" },
       ],
+    },
+    {
+      name: "Home and media",
+      services: [
+        { id: "homeassistant", name: "Home Assistant", role: "IoT automation" },
+        { id: "frigate", name: "Frigate", role: "Camera NVR" },
+        { id: "jellyfin", name: "Jellyfin", role: "Media server" },
+        { id: "crafty", name: "Crafty", role: "Minecraft for friends" },
+      ],
+    },
+    {
+      name: "Operations",
+      services: [
+        { id: "beszel", name: "Beszel", role: "Host metrics" },
+        { id: "uptimekuma", name: "Uptime Kuma", role: "Service checks" },
+        { id: "portainer", name: "Portainer", role: "Containers" },
+        { id: "homepage", name: "Homepage", role: "Dashboard" },
+      ],
+    },
+    {
+      name: "Lab",
+      services: [{ id: "kali", name: "Kali and targets", role: "Attack VMs" }],
+    },
+  ],
+  vlans: [
+    {
+      id: "trusted",
+      name: "Trusted",
+      vlan: 10,
+      policy: "My own devices. Reach every service through the reverse proxy; admin panels only from here.",
+      reach: ["adguard", "npm", "tailscale", "nextcloud", "immich", "vaultwarden", "forgejo", "homeassistant", "frigate", "jellyfin", "crafty", "beszel", "uptimekuma", "portainer", "homepage"],
+    },
+    {
+      id: "guests",
+      name: "Guests",
+      vlan: 20,
+      policy: "Internet only, with client isolation. Filtered DNS is the single internal service they see.",
+      reach: ["adguard"],
+    },
+    {
+      id: "iot",
+      name: "IoT",
+      vlan: 30,
+      policy: "No route to the rest of the house. Only Home Assistant talks to these devices.",
+      reach: ["adguard", "homeassistant"],
+    },
+    {
+      id: "cameras",
+      name: "Cameras",
+      vlan: 40,
+      policy: "No internet at all. Frigate pulls the streams and records locally.",
+      reach: ["frigate"],
     },
     {
       id: "lab",
       name: "Security lab",
-      vlan: 30,
-      policy: "Isolated. No route to core, observability or OT.",
-      nodes: [
-        { name: "Attack box", kind: "VM" },
-        { name: "Vulnerable targets", kind: "VM" },
-      ],
-    },
-    {
-      id: "ot",
-      name: "OT bench",
-      vlan: 40,
-      policy: "Isolated. Read-only polling from observability.",
-      nodes: [
-        { name: "PLC simulator", kind: "VM" },
-        { name: "HMI", kind: "VM" },
-      ],
+      vlan: 50,
+      policy: "Fully isolated. Kali, vulnerable targets and OT experiments, with no path out.",
+      reach: ["kali"],
     },
   ],
 };

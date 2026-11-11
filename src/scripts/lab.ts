@@ -5,10 +5,21 @@ const reduce = () => window.matchMedia("(prefers-reduced-motion: reduce)").match
 function initTopology() {
   const root = document.querySelector<HTMLElement>("[data-topo]");
   const out = root?.querySelector<HTMLElement>("[data-policy-text]");
-  if (!root || !out) return;
+  const host = root?.querySelector<HTMLElement>("[data-host]");
+  if (!root || !out || !host) return;
   const fallback = out.textContent ?? "";
+  const services = [...host.querySelectorAll<HTMLElement>("[data-svc]")];
   const show = (seg: HTMLElement | null) => {
-    out.textContent = seg ? `${seg.querySelector(".seg-name")?.textContent}: ${seg.dataset.policy}` : fallback;
+    if (!seg) {
+      out.textContent = fallback;
+      host.classList.remove("has-focus");
+      services.forEach((s) => s.classList.remove("is-reach"));
+      return;
+    }
+    const reach = new Set((seg.dataset.reach ?? "").split(" "));
+    out.textContent = `${seg.dataset.name}: ${seg.dataset.policy}`;
+    host.classList.add("has-focus");
+    services.forEach((s) => s.classList.toggle("is-reach", reach.has(s.dataset.svc ?? "")));
   };
   root.querySelectorAll<HTMLElement>("[data-seg]").forEach((seg) => {
     seg.addEventListener("pointerenter", () => show(seg));

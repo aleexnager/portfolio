@@ -2,9 +2,10 @@
 import Icon from "./Icon.astro";
 import { experience, education, certifications } from "../data/site";
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const fmt = (ym: string) => {
   const [y, m] = ym.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+  return `${MONTHS[m - 1]} ${y}`;
 };
 
 const duration = (start: string, end: string | null) => {
@@ -21,10 +22,10 @@ const duration = (start: string, end: string | null) => {
 <section id="work" class="section" aria-labelledby="work-title">
   <div class="container">
     <div class="section-head" data-reveal>
-      <h2 id="work-title">From shipping .NET for pharma to auditing critical infrastructure.</h2>
+      <h2 id="work-title">From shipping .NET for pharma to securing identity at enterprise scale.</h2>
       <p>
-        Two roles, one through-line: understanding systems well enough to judge their risk, and explaining that risk to
-        the people who decide.
+        Developer, risk analyst, now consultant. One through-line: understanding systems well enough to judge their
+        risk, and explaining that risk to the people who decide.
       </p>
     </div>
 
@@ -44,6 +45,18 @@ const duration = (start: string, end: string | null) => {
                     <span class="sep" aria-hidden="true">/</span>
                     {job.location}
                   </p>
+                  {job.previousRoles && (
+                    <p class="job-promo">
+                      <span class="pill">Promoted</span>
+                      {job.previousRoles.map((r) => (
+                        <>
+                          <span class="promo-old">{r}</span>
+                          <Icon name="arrow-right" size="sm" class="promo-arrow" />
+                        </>
+                      ))}
+                      <span>{job.role}</span>
+                    </p>
+                  )}
                 </div>
                 <p class="job-dates mono num">
                   <span>
@@ -166,6 +179,24 @@ const duration = (start: string, end: string | null) => {
   .job-company {
     color: var(--text-muted);
     margin-top: var(--s-1);
+  }
+
+  .job-promo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-2);
+    margin-top: var(--s-2);
+    font-size: var(--fs-sm);
+    color: var(--text);
+  }
+
+  .promo-old {
+    color: var(--text-subtle);
+  }
+
+  :global(.promo-arrow) {
+    color: var(--accent);
   }
 
   .sep {

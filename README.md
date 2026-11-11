@@ -27,8 +27,8 @@ Everything lives in `src/data/site.ts`:
 | Profile, links, CV file | `profile` |
 | Jobs | `experience` |
 | Degrees and certifications | `education`, `certifications` |
-| Projects (add one = append one object) | `projects` |
-| Homelab diagram | `homelab` |
+| Projects (add one = append one object, with a `tint` colour) | `projects` |
+| Homelab: VLANs, policies and services | `homelab` (`vlans[].reach` lists the service ids a VLAN may talk to) |
 
 Screenshots for project cards go in `src/assets/shots/` and are referenced by the `shot` field. Images are converted to responsive WebP at build time.
 
@@ -49,3 +49,7 @@ npm run build    # static site in dist/
 
 - **GitHub Pages**: `.github/workflows/pages.yml` builds with `BASE_PATH=/portfolio` and deploys on every push to `main`. Repository settings: Pages source must be "GitHub Actions".
 - **Vercel**: import the repository; `vercel.json` sets the framework, build command and security headers. No environment variables are needed.
+
+## Project card visuals
+
+Each card without a screenshot gets a small animation that explains the project, defined in `src/components/ProjectVisual.astro` (SVG and CSS, keyed by `slug`) and `src/scripts/astar.ts` (a real A* search on a weighted grid). They only run while on screen and freeze under reduced motion. A new project without its own visual simply shows its tint.

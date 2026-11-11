@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import Icon from "./Icon.astro";
 import Activity from "./Activity.astro";
+import ProjectVisual from "./ProjectVisual.astro";
 import { projects, categories } from "../data/site";
 import temazos from "../assets/shots/temazos.jpg";
 import recipemaker from "../assets/shots/recipemaker.jpg";
@@ -44,9 +45,11 @@ const counts = Object.fromEntries(
             <li
               class:list={["proj card spot", p.shot && "has-shot", i >= VISIBLE && "is-extra"]}
               data-cat={p.category}
+              data-tint={p.tint}
               data-reveal
               data-i={i % 3}
             >
+              {!p.shot && <ProjectVisual slug={p.slug} />}
               {p.shot && (
                 <div class="shot">
                   <Image
@@ -163,6 +166,8 @@ const counts = Object.fromEntries(
   }
 
   .proj {
+    --tint: var(--accent);
+    --spot-line: color-mix(in oklab, var(--tint) 55%, transparent);
     display: flex;
     flex-direction: column;
     padding: var(--pad-card);
@@ -196,6 +201,16 @@ const counts = Object.fromEntries(
       opacity: 0;
       transform: translateY(10px) scale(0.98);
     }
+  }
+
+  .shot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tint) 30%, transparent);
+    background: linear-gradient(180deg, transparent 65%, color-mix(in oklab, var(--tint) 16%, transparent));
   }
 
   .shot {
@@ -375,4 +390,9 @@ const counts = Object.fromEntries(
     });
     if (empty) empty.hidden = shown > 0;
   });
+</script>
+
+<script>
+  import { initVisuals } from "../scripts/visuals";
+  initVisuals();
 </script>
