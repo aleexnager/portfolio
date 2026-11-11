@@ -1,0 +1,174 @@
+---
+import Icon from "./Icon.astro";
+import { profile, projects } from "../data/site";
+// Fallback copy for repos that have no description on GitHub.
+const blurbs = Object.fromEntries(
+  projects.filter((p) => p.repo).map((p) => [p.repo!.split("/").pop()!.toLowerCase(), p.blurb]),
+);
+---
+
+<div class="activity card" data-activity data-user={profile.githubUser} data-blurbs={JSON.stringify(blurbs)} data-reveal>
+    <header class="act-head">
+      <div>
+        <h3>Latest pushes on GitHub</h3>
+        <p class="muted">Pulled live from the GitHub API when you opened this page.</p>
+      </div>
+      <a class="btn btn-ghost btn-sm" href={profile.github} target="_blank" rel="noopener noreferrer">
+        <Icon name="github" size="sm" />
+        Profile
+      </a>
+    </header>
+
+    <ol class="act-list" data-act-list aria-busy="true">
+      {
+        Array.from({ length: 5 }).map(() => (
+          <li class="act-row is-skel" aria-hidden="true">
+            <span class="skeleton sk-a" />
+            <span class="skeleton sk-b" />
+            <span class="skeleton sk-c" />
+          </li>
+        ))
+      }
+    </ol>
+    <div class="act-error" data-act-error hidden>
+      <p class="muted">GitHub did not answer (rate limit or offline).</p>
+      <button type="button" class="btn btn-ghost btn-sm" data-act-retry>
+        <Icon name="reset" size="sm" />
+        Retry
+      </button>
+    </div>
+</div>
+
+<style>
+  .activity {
+    margin-top: var(--s-8);
+    padding: var(--s-5);
+  }
+
+  .act-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--s-4);
+    margin-bottom: var(--s-4);
+  }
+
+  .act-head h3 {
+    font-size: var(--fs-lg);
+    letter-spacing: -0.02em;
+  }
+
+  .act-head p {
+    font-size: var(--fs-sm);
+    margin-top: var(--s-1);
+  }
+
+  .act-list {
+    display: grid;
+  }
+
+  .act-list :global(.act-row) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name time"
+      "desc desc";
+    gap: 2px var(--s-4);
+    padding-block: var(--s-3);
+    border-top: 1px solid var(--line);
+  }
+
+  .act-list :global(.act-name) {
+    grid-area: name;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-weight: 500;
+    min-width: 0;
+  }
+
+  .act-list :global(.act-name a) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .act-list :global(.act-name a:hover) {
+    color: var(--accent);
+  }
+
+  .act-list :global(.act-lang) {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+    white-space: nowrap;
+  }
+
+  .act-list :global(.act-time) {
+    grid-area: time;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .act-list :global(.act-desc) {
+    grid-area: desc;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .act-list :global(.act-row.is-fresh) {
+    animation: fresh 600ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+
+  @keyframes fresh {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  .sk-a {
+    grid-area: name;
+    width: 40%;
+    height: 1rem;
+  }
+
+  .sk-b {
+    grid-area: time;
+    width: 4rem;
+    height: 0.75rem;
+  }
+
+  .sk-c {
+    grid-area: desc;
+    width: 70%;
+    height: 0.75rem;
+    margin-top: var(--s-1);
+  }
+
+  .act-error {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+
+  @media (min-width: 48rem) {
+    .activity {
+      padding: var(--s-6);
+    }
+  }
+</style>
+
+<script>
+  import { initActivity } from "../scripts/github";
+  initActivity();
+</script>

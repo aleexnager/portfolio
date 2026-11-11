@@ -1,0 +1,713 @@
+---
+import Icon from "./Icon.astro";
+import { homelab } from "../data/site";
+
+// --- A real Modbus/TCP "Read Holding Registers" request, HMI to PLC ------
+const hex = (s: string) => s.split(/\s+/).filter(Boolean).map((b) => parseInt(b, 16));
+const ip = hex("45 00 00 34 1c 46 40 00 40 06 00 00 c0 a8 28 0b c0 a8 28 0a");
+const sum16 = (bytes: number[]) => {
+  let s = 0;
+  for (let i = 0; i < bytes.length; i += 2) s += (bytes[i] << 8) + (bytes[i + 1] ?? 0);
+  while (s >> 16) s = (s & 0xffff) + (s >> 16);
+  return ~s & 0xffff;
+};
+const ipSum = sum16(ip);
+ip[10] = ipSum >> 8;
+ip[11] = ipSum & 0xff;
+const modbus = hex("00 01 00 00 00 06 01 03 00 00 00 04");
+const tcp = hex("c0 00 01 f6 00 00 a1 3c 00 00 3f 92 50 18 fa f0 00 00 00 00");
+const pseudo = [...ip.slice(12, 20), 0, 6, 0, tcp.length + modbus.length];
+const tcpSum = sum16([...pseudo, ...tcp, ...modbus]);
+tcp[16] = tcpSum >> 8;
+tcp[17] = tcpSum & 0xff;
+const eth = hex("02 00 00 00 00 28 02 00 00 00 00 29 08 00");
+const frame = [...eth, ...ip, ...tcp, ...modbus];
+
+type Field = { from: number; to: number; layer: "eth" | "ip" | "tcp" | "mb"; name: string; value: string };
+const h4 = (n: number) => `0x${n.toString(16).padStart(4, "0")}`;
+const fields: Field[] = [
+  { from: 0, to: 6, layer: "eth", name: "Destination MAC", value: "02:00:00:00:00:28 (PLC)" },
+  { from: 6, to: 12, layer: "eth", name: "Source MAC", value: "02:00:00:00:00:29 (HMI)" },
+  { from: 12, to: 14, layer: "eth", name: "EtherType", value: "0x0800, IPv4" },
+  { from: 14, to: 15, layer: "ip", name: "Version and IHL", value: "IPv4, 20 byte header" },
+  { from: 15, to: 16, layer: "ip", name: "DSCP and ECN", value: "Best effort" },
+  { from: 16, to: 18, layer: "ip", name: "Total length", value: "52 bytes" },
+  { from: 18, to: 20, layer: "ip", name: "Identification", value: "0x1c46" },
+  { from: 20, to: 22, layer: "ip", name: "Flags", value: "Don't fragment" },
+  { from: 22, to: 23, layer: "ip", name: "TTL", value: "64" },
+  { from: 23, to: 24, layer: "ip", name: "Protocol", value: "6, TCP" },
+  { from: 24, to: 26, layer: "ip", name: "Header checksum", value: `${h4(ipSum)}, valid` },
+  { from: 26, to: 30, layer: "ip", name: "Source address", value: "192.168.40.11 (HMI, VLAN 40)" },
+  { from: 30, to: 34, layer: "ip", name: "Destination address", value: "192.168.40.10 (PLC, VLAN 40)" },
+  { from: 34, to: 36, layer: "tcp", name: "Source port", value: "49152, ephemeral" },
+  { from: 36, to: 38, layer: "tcp", name: "Destination port", value: "502, Modbus" },
+  { from: 38, to: 42, layer: "tcp", name: "Sequence number", value: "41276" },
+  { from: 42, to: 46, layer: "tcp", name: "Acknowledgement", value: "16274" },
+  { from: 46, to: 47, layer: "tcp", name: "Data offset", value: "20 byte header" },
+  { from: 47, to: 48, layer: "tcp", name: "Flags", value: "PSH, ACK" },
+  { from: 48, to: 50, layer: "tcp", name: "Window", value: "64240" },
+  { from: 50, to: 52, layer: "tcp", name: "Checksum", value: `${h4(tcpSum)}, valid` },
+  { from: 52, to: 54, layer: "tcp", name: "Urgent pointer", value: "0" },
+  { from: 54, to: 56, layer: "mb", name: "Transaction ID", value: "1" },
+  { from: 56, to: 58, layer: "mb", name: "Protocol ID", value: "0, Modbus" },
+  { from: 58, to: 60, layer: "mb", name: "Length", value: "6 bytes follow" },
+  { from: 60, to: 61, layer: "mb", name: "Unit ID", value: "1" },
+  { from: 61, to: 62, layer: "mb", name: "Function code", value: "0x03, Read Holding Registers" },
+  { from: 62, to: 64, layer: "mb", name: "Start address", value: "0, register 40001" },
+  { from: 64, to: 66, layer: "mb", name: "Quantity", value: "4 registers" },
+];
+const fieldOf = (i: number) => fields.findIndex((f) => i >= f.from && i < f.to);
+const layers = [
+  { id: "eth", label: "Ethernet II", bytes: 14 },
+  { id: "ip", label: "IPv4", bytes: 20 },
+  { id: "tcp", label: "TCP", bytes: 20 },
+  { id: "mb", label: "Modbus/TCP", bytes: 12 },
+];
+
+const registers = [
+  { addr: 40001, name: "Tank level", unit: "%" },
+  { addr: 40002, name: "Pump", unit: "" },
+  { addr: 40003, name: "Flow", unit: "l/min" },
+  { addr: 40004, name: "High setpoint", unit: "%" },
+];
+---
+
+<section id="lab" class="section" aria-labelledby="lab-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <h2 id="lab-title">Off the clock I run a Proxmox homelab and take OT protocols apart.</h2>
+      <p>
+        Networks are my favourite layer. At home I segment, break and monitor my own infrastructure, and I spend more time
+        than I should on industrial protocols, where availability comes first and authentication often does not exist.
+      </p>
+    </div>
+
+    <div class="lab-grid">
+      <!-- Homelab topology -->
+      <article class="card topo" data-topo data-reveal aria-labelledby="topo-title">
+        <header class="lab-head">
+          <span class="lab-icon"><Icon name="server" /></span>
+          <div>
+            <h3 id="topo-title">Homelab topology</h3>
+            <p class="muted">Hover or focus a segment to see its firewall policy.</p>
+          </div>
+        </header>
+
+        <div class="topo-chain">
+          <div class="tnode">
+            <span class="mono tnode-k">WAN</span>
+            <span>Internet</span>
+          </div>
+          <span class="wire wire-v" aria-hidden="true"></span>
+          <div class="tnode tnode-edge">
+            <span class="mono tnode-k"><Icon name="shield" size="sm" /> Edge</span>
+            <span>{homelab.edge.name}</span>
+            <span class="tnode-d">{homelab.edge.detail}</span>
+          </div>
+          <span class="wire wire-v" aria-hidden="true"></span>
+          <div class="tnode tnode-host">
+            <span class="mono tnode-k"><Icon name="cpu" size="sm" /> Host</span>
+            <span>{homelab.host.name}</span>
+            <span class="tnode-d">{homelab.host.detail}</span>
+          </div>
+          <span class="wire wire-v" aria-hidden="true"></span>
+        </div>
+
+        <div class="bus" aria-hidden="true"><span class="wire wire-h"></span></div>
+
+        <ul class="segments">
+          {
+            homelab.segments.map((seg) => (
+              <li class="seg" tabindex="0" data-seg={seg.id} data-policy={seg.policy} aria-describedby="topo-policy">
+                <span class="wire wire-drop" aria-hidden="true" />
+                <div class="seg-head">
+                  <span class="mono num seg-vlan">VLAN {seg.vlan}</span>
+                  <span class="seg-name">{seg.name}</span>
+                </div>
+                <ul class="seg-nodes">
+                  {seg.nodes.map((n) => (
+                    <li>
+                      <span class="dot" aria-hidden="true" />
+                      <span class="seg-node">{n.name}</span>
+                      <span class="mono seg-kind">{n.kind}</span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="policy" id="topo-policy" aria-live="polite" data-policy-out>
+          <Icon name="lock" size="sm" />
+          <span data-policy-text>Default deny between segments. Every allowed flow is explicit.</span>
+        </p>
+      </article>
+
+      <!-- Packet dissector -->
+      <article class="card dissect" data-dissect data-reveal data-i="1" aria-labelledby="dissect-title">
+        <header class="lab-head">
+          <span class="lab-icon"><Icon name="network" /></span>
+          <div>
+            <h3 id="dissect-title">One packet, four layers</h3>
+            <p class="muted">A Modbus/TCP read from my HMI to the PLC. Hover any byte.</p>
+          </div>
+        </header>
+
+        <div class="layers" role="list">
+          {
+            layers.map((l) => (
+              <button type="button" role="listitem" class:list={["layer", `l-${l.id}`]} data-layer={l.id}>
+                <span class="swatch" aria-hidden="true" />
+                {l.label}
+                <span class="mono num layer-b">{l.bytes} B</span>
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="hexdump mono num" data-hexdump aria-label="Packet bytes in hexadecimal" role="group">
+          {
+            frame.map((b, i) => {
+              const fi = fieldOf(i);
+              const f = fields[fi];
+              return (
+                <button type="button" class:list={["byte", `l-${f.layer}`]} data-f={fi} data-layer-of={f.layer} data-n={f.name} data-v={f.value} tabindex={i % 16 === 0 ? 0 : -1} aria-label={`${f.name}: ${f.value}`}>
+                  {b.toString(16).padStart(2, "0")}
+                </button>
+              );
+            })
+          }
+        </div>
+
+        <div class="readout" aria-live="polite">
+          <p class="mono readout-k" data-readout-k>Field</p>
+          <p class="readout-v" data-readout-v>Function code 0x03, Read Holding Registers</p>
+        </div>
+        <p class="insight">
+          <Icon name="eye" size="sm" />
+          <span>Note what is missing: no authentication and no integrity. Anything on VLAN 40 can send this, which is why the segment is isolated.</span>
+        </p>
+      </article>
+
+      <!-- OT registers -->
+      <article class="card ot" data-ot data-reveal data-i="2" aria-labelledby="ot-title">
+        <header class="lab-head">
+          <span class="lab-icon"><Icon name="factory" /></span>
+          <div>
+            <h3 id="ot-title">The PLC answering that request</h3>
+            <p class="muted">A simulated tank loop, polled once per second.</p>
+          </div>
+        </header>
+
+        <div class="tank-row">
+          <div class="tank" aria-hidden="true">
+            <span class="tank-fill" data-tank></span>
+            <span class="tank-sp"></span>
+          </div>
+          <svg class="spark" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true">
+            <polyline data-spark points="" />
+          </svg>
+        </div>
+
+        <table class="regs">
+          <caption class="sr-only">Holding registers</caption>
+          <thead>
+            <tr>
+              <th scope="col">Register</th>
+              <th scope="col">Tag</th>
+              <th scope="col" class="r">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              registers.map((r) => (
+                <tr>
+                  <td class="mono num">{r.addr}</td>
+                  <td>{r.name}</td>
+                  <td class="mono num r">
+                    <span data-reg={r.addr}>--</span>
+                    {r.unit && <span class="unit">{r.unit}</span>}
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .lab-grid {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .lab-grid > .card {
+    padding: var(--s-5);
+    min-width: 0;
+  }
+
+  .lab-head {
+    display: flex;
+    gap: var(--s-3);
+    align-items: flex-start;
+    margin-bottom: var(--s-5);
+  }
+
+  .lab-head h3 {
+    font-size: var(--fs-lg);
+    letter-spacing: -0.02em;
+  }
+
+  .lab-head p {
+    font-size: var(--fs-sm);
+    margin-top: 2px;
+  }
+
+  .lab-icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+    border-radius: var(--r-md);
+    border: 1px solid var(--line);
+    color: var(--accent);
+    background: var(--bg);
+  }
+
+  /* ---- Topology ---- */
+  .topo-chain {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tnode {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    min-width: 14rem;
+    padding: var(--s-3) var(--s-5);
+    border-radius: var(--r-md);
+    border: 1px solid var(--line);
+    background: var(--bg);
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .tnode-k {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-1);
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+    font-weight: 400;
+  }
+
+  .tnode-d {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .tnode-host {
+    border-color: var(--accent-line);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  /* Wires carry animated traffic */
+  .wire {
+    display: block;
+    --dash: rgb(194 242 97 / 0.7);
+  }
+
+  .wire-v,
+  .wire-drop {
+    width: 2px;
+    height: 1.75rem;
+    background: repeating-linear-gradient(180deg, var(--dash) 0 4px, transparent 4px 10px);
+    background-size: 2px 20px;
+    animation: flow-v 1.2s linear infinite;
+    opacity: 0.6;
+  }
+
+  .wire-h {
+    height: 2px;
+    width: 100%;
+    background: repeating-linear-gradient(90deg, var(--dash) 0 4px, transparent 4px 10px);
+    background-size: 20px 2px;
+    animation: flow-h 1.6s linear infinite;
+    opacity: 0.5;
+  }
+
+  @keyframes flow-v {
+    to {
+      background-position: 0 20px;
+    }
+  }
+
+  @keyframes flow-h {
+    to {
+      background-position: 20px 0;
+    }
+  }
+
+  .bus {
+    display: none;
+    padding-inline: 12.5%;
+  }
+
+  .segments {
+    display: grid;
+    gap: var(--s-3);
+    margin-top: var(--s-3);
+  }
+
+  .seg {
+    position: relative;
+    display: grid;
+    gap: var(--s-3);
+    padding: var(--s-4);
+    border-radius: var(--r-md);
+    border: 1px solid var(--line);
+    background: var(--bg);
+    transition:
+      opacity var(--dur-3) var(--ease-out),
+      border-color var(--dur-2),
+      transform var(--dur-3) var(--ease-out);
+  }
+
+  .seg .wire-drop {
+    display: none;
+  }
+
+  .seg:hover,
+  .seg:focus-visible {
+    border-color: var(--accent-line);
+    outline: none;
+  }
+
+  .segments:has(.seg:hover, .seg:focus-visible) .seg:not(:hover, :focus-visible) {
+    opacity: 0.45;
+  }
+
+  .seg-head {
+    display: grid;
+    gap: 2px;
+  }
+
+  .seg-vlan {
+    font-size: var(--fs-xs);
+    color: var(--accent);
+  }
+
+  .seg-name {
+    font-weight: 550;
+  }
+
+  .seg-nodes {
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .seg-nodes li {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .seg-nodes .dot {
+    width: 0.375rem;
+    height: 0.375rem;
+  }
+
+  .seg-node {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .seg-kind {
+    font-size: 0.6875rem;
+    color: var(--text-subtle);
+  }
+
+  .policy {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-md);
+    background: var(--accent-soft);
+    color: var(--text);
+    font-size: var(--fs-sm);
+    min-height: 3rem;
+  }
+
+  .policy :global(svg) {
+    color: var(--accent);
+  }
+
+  /* ---- Dissector ---- */
+  .l-eth {
+    --lc: #7cc4ff;
+  }
+
+  .l-ip {
+    --lc: #c9a7ff;
+  }
+
+  .l-tcp {
+    --lc: #ffb86b;
+  }
+
+  .l-mb {
+    --lc: var(--accent);
+  }
+
+  .layers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-bottom: var(--s-4);
+  }
+
+  .layer {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    height: 2rem;
+    padding-inline: var(--s-3);
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    transition:
+      border-color var(--dur-2),
+      color var(--dur-2);
+  }
+
+  .layer:hover,
+  .layer:global(.is-on) {
+    border-color: var(--lc);
+    color: var(--text);
+  }
+
+  .swatch {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 2px;
+    background: var(--lc);
+  }
+
+  .layer-b {
+    color: var(--text-subtle);
+  }
+
+  .hexdump {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 2px;
+    padding: var(--s-3);
+    border-radius: var(--r-md);
+    border: 1px solid var(--line);
+    background: var(--bg);
+    font-size: var(--fs-xs);
+  }
+
+  .byte {
+    height: 1.625rem;
+    border-radius: var(--r-xs);
+    font-family: var(--font-mono);
+    color: color-mix(in oklab, var(--lc) 75%, var(--text-subtle));
+    transition:
+      background-color var(--dur-1),
+      color var(--dur-1);
+  }
+
+  .byte:global(.is-field) {
+    background: color-mix(in oklab, var(--lc) 26%, transparent);
+    color: var(--text);
+  }
+
+  .hexdump:global(.has-layer) .byte:not(:global(.is-layer)) {
+    opacity: 0.3;
+  }
+
+  .readout {
+    display: grid;
+    gap: 2px;
+    margin-top: var(--s-3);
+    min-height: 3.25rem;
+  }
+
+  .readout-k {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .readout-v {
+    font-weight: 500;
+  }
+
+  .insight {
+    display: flex;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .insight :global(svg) {
+    margin-top: 3px;
+    color: var(--warn);
+  }
+
+  /* ---- OT ---- */
+  .tank-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--s-4);
+    align-items: stretch;
+    margin-bottom: var(--s-4);
+  }
+
+  .tank {
+    position: relative;
+    width: 3.5rem;
+    height: 6rem;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--line-strong);
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .tank-fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(194 242 97 / 0.55), rgb(194 242 97 / 0.2));
+    transform-origin: bottom;
+    transform: scaleY(0.5);
+    transition: transform 900ms var(--ease-in-out);
+  }
+
+  .tank-sp {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 80%;
+    border-top: 1px dashed var(--warn);
+  }
+
+  .spark {
+    width: 100%;
+    height: 6rem;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--line);
+    background: var(--bg);
+  }
+
+  .spark polyline {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .regs {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+  }
+
+  .regs th {
+    text-align: left;
+    font-weight: 500;
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+    padding-bottom: var(--s-2);
+  }
+
+  .regs td {
+    padding-block: var(--s-2);
+    border-top: 1px solid var(--line);
+    color: var(--text-muted);
+  }
+
+  .regs .r {
+    text-align: right;
+  }
+
+  .regs td.r {
+    color: var(--text);
+  }
+
+  .regs td :global(.flash) {
+    animation: flash 700ms var(--ease-out);
+  }
+
+  @keyframes flash {
+    from {
+      color: var(--accent);
+    }
+  }
+
+  .unit {
+    margin-left: var(--s-1);
+    color: var(--text-subtle);
+  }
+
+  @media (min-width: 48rem) {
+    .lab-grid > .card {
+      padding: var(--s-6);
+    }
+
+    .hexdump {
+      grid-template-columns: repeat(16, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lab-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .topo {
+      grid-column: 1 / -1;
+    }
+
+    .bus {
+      display: block;
+    }
+
+    .segments {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 0;
+    }
+
+    .seg {
+      margin-top: 1.75rem;
+    }
+
+    .seg .wire-drop {
+      display: block;
+      position: absolute;
+      top: -1.8rem;
+      left: 50%;
+      translate: -1px 0;
+    }
+  }
+</style>
+
+<script>
+  import { initLab } from "../scripts/lab";
+  initLab();
+</script>

@@ -1,0 +1,378 @@
+---
+import { Image } from "astro:assets";
+import Icon from "./Icon.astro";
+import Activity from "./Activity.astro";
+import { projects, categories } from "../data/site";
+import temazos from "../assets/shots/temazos.jpg";
+import recipemaker from "../assets/shots/recipemaker.jpg";
+import cronowork from "../assets/shots/cronowork.jpg";
+
+const shots = { temazos, recipemaker, cronowork };
+const VISIBLE = 9; // the rest sit behind "Show all" to keep the page light
+const hiddenCount = projects.length - VISIBLE;
+const counts = Object.fromEntries(
+  categories.map((c) => [c.id, c.id === "all" ? projects.length : projects.filter((p) => p.category === c.id).length]),
+);
+---
+
+<section id="projects" class="section" aria-labelledby="projects-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <h2 id="projects-title">Security research, systems work, and apps people actually use.</h2>
+      <p>
+        From assembly and a C shell at university to installable web apps in production today. The three on top are live:
+        open them on your phone.
+      </p>
+    </div>
+
+    <div class="filters" role="toolbar" aria-label="Filter projects" data-filters data-reveal>
+      {
+        categories.map((c, i) => (
+          <button type="button" aria-pressed={i === 0 ? "true" : "false"} data-filter={c.id}>
+            {c.label}
+            <span class="mono num count">{counts[c.id]}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <ul class="grid" data-grid>
+      {
+        projects.map((p, i) => {
+          const primary = p.live ?? p.repo;
+          return (
+            <li
+              class:list={["proj card spot", p.shot && "has-shot", i >= VISIBLE && "is-extra"]}
+              data-cat={p.category}
+              data-reveal
+              data-i={i % 3}
+            >
+              {p.shot && (
+                <div class="shot">
+                  <Image
+                    src={shots[p.shot]}
+                    alt={`${p.title} running on a phone`}
+                    widths={[360, 560]}
+                    sizes="(min-width: 64rem) 22rem, (min-width: 40rem) 45vw, 90vw"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <div class="proj-body">
+                <div class="proj-top">
+                  {p.status ? <span class:list={["pill", p.status === "In progress" && "pill-live"]}>{p.status}</span> : <span />}
+                  <span class="mono num year">{p.year}</span>
+                </div>
+                <h3>
+                  {primary ? (
+                    <a href={primary} target="_blank" rel="noopener noreferrer" class="stretch">
+                      {p.title}
+                    </a>
+                  ) : (
+                    p.title
+                  )}
+                </h3>
+                <p class="blurb">{p.blurb}</p>
+                <ul class="stack" aria-label="Stack">
+                  {p.stack.map((s) => (
+                    <li class="chip">{s}</li>
+                  ))}
+                </ul>
+                {(p.live || p.repo) && (
+                  <div class="proj-links">
+                    {p.live && (
+                      <a href={p.live} target="_blank" rel="noopener noreferrer" class="plink plink-live">
+                        Open app
+                        <Icon name="arrow-up-right" size="sm" />
+                      </a>
+                    )}
+                    {p.repo && (
+                      <a href={p.repo} target="_blank" rel="noopener noreferrer" class="plink">
+                        <Icon name="github" size="sm" />
+                        Code
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <p class="empty muted" data-empty hidden>Nothing here yet.</p>
+    {
+      hiddenCount > 0 && (
+        <div class="more">
+          <button type="button" class="btn btn-ghost" data-more aria-expanded="false">
+            Show all {projects.length} projects
+            <span class="mono num more-n">+{hiddenCount}</span>
+          </button>
+        </div>
+      )
+    }
+    <Activity />
+  </div>
+</section>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-bottom: var(--s-6);
+  }
+
+  .filters button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    height: 2.25rem;
+    padding-inline: var(--s-4);
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    transition:
+      color var(--dur-2),
+      border-color var(--dur-2),
+      background-color var(--dur-2);
+  }
+
+  .filters button:hover {
+    color: var(--text);
+    border-color: var(--line-strong);
+  }
+
+  .filters button[aria-pressed="true"] {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
+  }
+
+  .count {
+    font-size: var(--fs-xs);
+    opacity: 0.7;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-flow: dense;
+    gap: var(--s-4);
+  }
+
+  .proj {
+    display: flex;
+    flex-direction: column;
+    padding: var(--pad-card);
+    transition:
+      transform var(--dur-3) var(--ease-out),
+      opacity var(--dur-3) var(--ease-out);
+  }
+
+  .proj:global(.is-hidden),
+  .grid:not(:global(.is-expanded)) .is-extra {
+    display: none;
+  }
+
+  .more {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--s-6);
+  }
+
+  .more-n {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .proj:global(.is-entering) {
+    animation: enter var(--dur-3) var(--ease-out) both;
+  }
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+  }
+
+  .shot {
+    position: relative;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background: var(--bg);
+    border: 1px solid var(--line);
+  }
+
+  .shot :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 900ms var(--ease-out);
+  }
+
+  .proj:hover .shot :global(img) {
+    transform: scale(1.03);
+  }
+
+  .proj-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    flex: 1;
+    padding: var(--s-4);
+  }
+
+  .proj-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 1.25rem;
+  }
+
+  .year {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .pill {
+    font-size: var(--fs-xs);
+    padding: 1px var(--s-2);
+    border-radius: 999px;
+    color: var(--text-muted);
+    background: rgb(255 255 255 / 0.06);
+  }
+
+  .pill-live {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  h3 {
+    font-size: var(--fs-lg);
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+
+  .stretch::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .stretch:focus-visible {
+    outline: none;
+  }
+
+  .stretch:focus-visible::after {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .blurb {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    flex: 1;
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1);
+  }
+
+  .proj-links {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: var(--s-4);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--line);
+  }
+
+  .plink {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-1);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    transition: color var(--dur-2);
+  }
+
+  .plink:hover {
+    color: var(--text);
+  }
+
+  .plink-live {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .plink-live:hover {
+    color: #d9f99a;
+  }
+
+  @media (min-width: 40rem) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .has-shot {
+      grid-row: span 2;
+    }
+  }
+</style>
+
+<script>
+  const bar = document.querySelector<HTMLElement>("[data-filters]");
+  const grid = document.querySelector<HTMLElement>("[data-grid]");
+  const cards = [...document.querySelectorAll<HTMLElement>("[data-grid] > li")];
+  const empty = document.querySelector<HTMLElement>("[data-empty]");
+  const more = document.querySelector<HTMLButtonElement>("[data-more]");
+
+  const expand = () => {
+    if (!grid || grid.classList.contains("is-expanded")) return;
+    grid.classList.add("is-expanded");
+    grid.querySelectorAll<HTMLElement>(".is-extra").forEach((c) => {
+      c.classList.add("is-in", "is-entering");
+    });
+    more?.parentElement?.setAttribute("hidden", "");
+    more?.setAttribute("aria-expanded", "true");
+  };
+  more?.addEventListener("click", expand);
+  bar?.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>("[data-filter]");
+    if (!btn) return;
+    const f = btn.dataset.filter;
+    // A specific filter shows every match; the list stays expanded afterwards.
+    if (f !== "all") expand();
+    bar.querySelectorAll("[data-filter]").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+    let shown = 0;
+    cards.forEach((c) => {
+      const match = f === "all" || c.dataset.cat === f;
+      const wasHidden = c.classList.contains("is-hidden");
+      c.classList.toggle("is-hidden", !match);
+      c.classList.add("is-in");
+      if (match) {
+        shown++;
+        if (wasHidden) {
+          c.classList.remove("is-entering");
+          void c.offsetWidth;
+          c.classList.add("is-entering");
+        }
+      }
+    });
+    if (empty) empty.hidden = shown > 0;
+  });
+</script>

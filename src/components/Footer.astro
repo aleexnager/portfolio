@@ -1,0 +1,63 @@
+---
+import { profile } from "../data/site";
+const year = new Date().getFullYear();
+const built = new Date().toISOString().slice(0, 10);
+---
+
+<footer class="footer">
+  <div class="container foot">
+    <p>
+      <span class="name">{profile.fullName}</span>
+      <span class="muted">Madrid, {year}</span>
+    </p>
+    <p class="posture">
+      Static site, strict Content-Security-Policy, no cookies, no trackers.
+      <a class="link" href="https://github.com/aleexnager/portfolio" target="_blank" rel="noopener noreferrer">Source</a>
+    </p>
+    <p class="mono num build">Build {built}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--line);
+    padding-block: var(--s-6);
+    font-size: var(--fs-sm);
+  }
+
+  .foot {
+    display: grid;
+    gap: var(--s-3);
+  }
+
+  .foot p:first-child {
+    display: flex;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+
+  .name {
+    font-weight: 500;
+  }
+
+  .posture {
+    color: var(--text-muted);
+  }
+
+  .build {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  @media (min-width: 64rem) {
+    .foot {
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: var(--s-6);
+    }
+
+    .posture {
+      text-align: center;
+    }
+  }
+</style>

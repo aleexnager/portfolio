@@ -1,0 +1,178 @@
+---
+import Icon from "./Icon.astro";
+import { profile } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
+
+<section id="contact" class="section contact" aria-labelledby="contact-title">
+  <div class="container">
+    <div class="cta card" data-reveal>
+      <div class="cta-glow" aria-hidden="true"></div>
+      <p class="status">
+        <span class="dot" aria-hidden="true"></span>
+        Open to conversations about security and engineering roles
+      </p>
+      <h2 id="contact-title">Hiring for cyber risk, offensive security or secure engineering? Let's talk.</h2>
+      <p class="cta-sub">Email is the fastest way to reach me. My CV has the full detail.</p>
+
+      <div class="cta-actions">
+        <a class="btn btn-primary btn-lg" href={`mailto:${profile.email}?subject=Hello%20Alejandro`}>
+          <Icon name="mail" />
+          {profile.email}
+        </a>
+        <button type="button" class="btn btn-ghost btn-lg copy-btn" data-copy={profile.email} data-copy-label="Email copied">
+          <span class="copy-ico">
+            <Icon name="copy" class="i-copy" />
+            <Icon name="check" class="i-check" />
+          </span>
+          <span class="copy-txt">Copy email</span>
+        </button>
+      </div>
+
+      <ul class="cta-links">
+        <li>
+          <a class="link" href={profile.linkedin} target="_blank" rel="noopener noreferrer">
+            <Icon name="linkedin" size="sm" /> LinkedIn
+          </a>
+        </li>
+        <li>
+          <a class="link" href={profile.github} target="_blank" rel="noopener noreferrer">
+            <Icon name="github" size="sm" /> GitHub
+          </a>
+        </li>
+        <li>
+          <a class="link" href={`${base}${profile.cv}`} download="Alejandro-Nager-CV.pdf">
+            <Icon name="download" size="sm" /> CV (PDF)
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    justify-items: center;
+    gap: var(--s-5);
+    padding: var(--s-9) var(--s-5);
+    text-align: center;
+    border-color: var(--accent-line);
+  }
+
+  .cta-glow {
+    position: absolute;
+    inset: auto -20% -60% -20%;
+    height: 120%;
+    background: radial-gradient(50% 50% at 50% 50%, rgb(194 242 97 / 0.18), transparent 70%);
+    pointer-events: none;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-3);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  h2 {
+    position: relative;
+    font-size: var(--fs-2xl);
+    max-width: 20ch;
+  }
+
+  .cta-sub {
+    color: var(--text-muted);
+    font-size: var(--fs-md);
+  }
+
+  .cta-actions {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
+
+  .btn-lg {
+    --h: 3.5rem;
+    padding-inline: var(--s-6);
+    font-size: var(--fs-base);
+  }
+
+  .copy-ico {
+    position: relative;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .copy-ico :global(svg) {
+    position: absolute;
+    inset: 0;
+    transition:
+      opacity var(--dur-2),
+      transform var(--dur-3) var(--ease-out);
+  }
+
+  .copy-ico :global(.i-check) {
+    opacity: 0;
+    transform: scale(0.5);
+    color: var(--accent);
+  }
+
+  .copy-btn:global(.is-copied) :global(.i-copy) {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  .copy-btn:global(.is-copied) :global(.i-check) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .copy-btn:global(.is-copied) {
+    border-color: var(--accent-line);
+  }
+
+  .cta-links {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-6);
+    margin-top: var(--s-4);
+    font-size: var(--fs-sm);
+  }
+
+  .cta-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 30rem) {
+    .btn-lg {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  // Swap the visible label while the check icon is shown.
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLElement>(".copy-btn");
+    const txt = btn?.querySelector<HTMLElement>(".copy-txt");
+    if (!btn || !txt) return;
+    window.setTimeout(() => {
+      if (btn.classList.contains("is-copied")) {
+        txt.textContent = "Copied";
+        window.setTimeout(() => (txt.textContent = "Copy email"), 1800);
+      }
+    }, 50);
+  });
+</script>

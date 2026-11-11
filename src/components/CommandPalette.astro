@@ -1,0 +1,230 @@
+---
+import Icon, { type IconName } from "./Icon.astro";
+import { profile, projects } from "../data/site";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+
+type Item = { group: string; label: string; icon: IconName; action: string; value: string; hint?: string };
+
+const items: Item[] = [
+  { group: "Navigate", label: "Experience", icon: "hash", action: "go", value: "#work" },
+  { group: "Navigate", label: "Thesis demo: steganography", icon: "hash", action: "go", value: "#thesis" },
+  { group: "Navigate", label: "Projects", icon: "hash", action: "go", value: "#projects" },
+  { group: "Navigate", label: "Homelab and OT", icon: "hash", action: "go", value: "#lab" },
+  { group: "Navigate", label: "About", icon: "hash", action: "go", value: "#about" },
+  { group: "Navigate", label: "Contact", icon: "hash", action: "go", value: "#contact" },
+  { group: "Actions", label: "Copy email address", icon: "copy", action: "copy", value: profile.email, hint: profile.email },
+  { group: "Actions", label: "Download CV", icon: "download", action: "download", value: `${base}${profile.cv}`, hint: "PDF" },
+  { group: "Actions", label: "Open LinkedIn", icon: "linkedin", action: "open", value: profile.linkedin },
+  { group: "Actions", label: "Open GitHub", icon: "github", action: "open", value: profile.github },
+  ...projects
+    .filter((p) => p.live || p.repo)
+    .map<Item>((p) => ({
+      group: "Projects",
+      label: p.title,
+      icon: p.live ? "arrow-up-right" : "github",
+      action: "open",
+      value: (p.live ?? p.repo)!,
+      hint: p.live ? "Live app" : "Code",
+    })),
+];
+---
+
+<dialog class="palette" data-palette aria-label="Command menu">
+  <div class="pal-box">
+    <div class="pal-search">
+      <Icon name="search" />
+      <input
+        type="text"
+        placeholder="Jump to a section, project or action"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search commands"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="pal-list"
+        data-pal-input
+      />
+      <kbd class="mono">Esc</kbd>
+    </div>
+    <ul class="pal-list" id="pal-list" role="listbox" data-pal-list>
+      {
+        items.map((it, i) => (
+          <li
+            role="option"
+            id={`pal-${i}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            data-group={it.group}
+            data-action={it.action}
+            data-value={it.value}
+            data-label={it.label.toLowerCase()}
+          >
+            <Icon name={it.icon} size="sm" />
+            <span class="pal-label">{it.label}</span>
+            <span class="pal-group">{it.group}</span>
+            {it.hint && <span class="pal-hint mono">{it.hint}</span>}
+          </li>
+        ))
+      }
+    </ul>
+    <p class="pal-empty" data-pal-empty hidden>No matches. Try "cv", "email" or a project name.</p>
+    <footer class="pal-foot mono">
+      <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
+      <span><kbd>↵</kbd> select</span>
+    </footer>
+  </div>
+</dialog>
+
+<style>
+  .palette {
+    width: min(40rem, calc(100vw - 2rem));
+    max-height: min(32rem, 80vh);
+    margin: 12vh auto auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    overflow: visible;
+  }
+
+  .palette::backdrop {
+    background: rgb(4 5 6 / 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .palette[open] .pal-box {
+    animation: pal-in var(--dur-3) var(--ease-out);
+  }
+
+  @keyframes pal-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+    }
+  }
+
+  .pal-box {
+    display: flex;
+    flex-direction: column;
+    max-height: min(32rem, 80vh);
+    padding: var(--pad-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--line-strong);
+    background: rgb(17 21 26 / 0.96);
+    box-shadow: 0 40px 120px -20px rgb(0 0 0 / 0.9);
+  }
+
+  .pal-search {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-md);
+    background: var(--bg);
+    color: var(--text-subtle);
+  }
+
+  .pal-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    outline: none;
+    font-size: var(--fs-md);
+    color: var(--text);
+  }
+
+  .pal-search input::placeholder {
+    color: var(--text-subtle);
+  }
+
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    padding: 1px 5px;
+    border-radius: var(--r-xs);
+    border: 1px solid var(--line-strong);
+    color: var(--text-muted);
+  }
+
+  .pal-list {
+    overflow-y: auto;
+    padding-block: var(--s-2);
+    overscroll-behavior: contain;
+  }
+
+  .pal-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-4);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    color: var(--text-muted);
+  }
+
+  .pal-list li[hidden] {
+    display: none;
+  }
+
+  .pal-list li[aria-selected="true"] {
+    background: rgb(255 255 255 / 0.06);
+    color: var(--text);
+  }
+
+  .pal-list li[aria-selected="true"] :global(svg) {
+    color: var(--accent);
+  }
+
+  .pal-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pal-group {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .pal-hint {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+    display: none;
+  }
+
+  .pal-empty {
+    padding: var(--s-5) var(--s-4);
+    color: var(--text-subtle);
+    font-size: var(--fs-sm);
+  }
+
+  .pal-foot {
+    display: flex;
+    gap: var(--s-5);
+    padding: var(--s-3) var(--s-4) var(--s-2);
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .pal-foot span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  @media (min-width: 40rem) {
+    .pal-hint {
+      display: inline;
+    }
+  }
+</style>
+
+<script>
+  import { initPalette } from "../scripts/palette";
+  initPalette();
+</script>

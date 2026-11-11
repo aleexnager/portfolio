@@ -1,0 +1,136 @@
+---
+import { Image } from "astro:assets";
+import photo from "../assets/alejandro.jpg";
+
+const facts = [
+  { k: "Based in", v: "Madrid, Spain" },
+  { k: "Languages", v: "Spanish (native), English (C1)" },
+  { k: "Focus", v: "GRC, offensive security, secure software" },
+  { k: "Outside work", v: "Homelab, OT, the gym, cooking, travel" },
+];
+---
+
+<section id="about" class="section" aria-labelledby="about-title">
+  <div class="container about">
+    <figure class="photo" data-reveal>
+      <div class="photo-frame">
+        <Image
+          src={photo}
+          alt="Alejandro Náger smiling in front of a stepped pyramid in Mexico"
+          widths={[400, 640, 900]}
+          sizes="(min-width: 64rem) 30rem, 90vw"
+          loading="lazy"
+        />
+      </div>
+      <figcaption>Mexico. The thesis demo above hides its message in this photo.</figcaption>
+    </figure>
+
+    <div class="about-body">
+      <h2 id="about-title" data-reveal>I like knowing how things work, then how they break.</h2>
+      <div class="prose" data-reveal data-i="1">
+        <p>
+          I started as a developer, so when I review a control I think about the code and the people behind it. At PwC I
+          translate frameworks like ENS and NIS2 into findings that a board can act on and an engineer can fix.
+        </p>
+        <p>
+          Most of my side projects solve a problem in my own life: a timer for the gym, a planner for what is in my
+          fridge, a music game for nights with friends. Shipping small things end to end keeps my engineering honest.
+        </p>
+        <p>
+          The rest of my free time goes to my homelab, industrial protocols and, when I can, a plane ticket.
+        </p>
+      </div>
+      <dl class="facts" data-reveal data-i="2">
+        {
+          facts.map((f) => (
+            <div>
+              <dt>{f.k}</dt>
+              <dd>{f.v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    display: grid;
+    gap: var(--s-7);
+    align-items: center;
+  }
+
+  .photo {
+    display: grid;
+    gap: var(--s-3);
+    max-width: 30rem;
+  }
+
+  .photo-frame {
+    padding: var(--pad-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .photo-frame :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--r-md);
+    filter: saturate(0.9);
+  }
+
+  figcaption {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .about-body {
+    display: grid;
+    gap: var(--s-6);
+  }
+
+  .about-body h2 {
+    font-size: var(--fs-2xl);
+  }
+
+  .prose {
+    display: grid;
+    gap: var(--s-4);
+    font-size: var(--fs-md);
+    color: var(--text-muted);
+    max-width: 38rem;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-5) var(--s-5);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
+  }
+
+  .facts div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .facts dt {
+    font-size: var(--fs-sm);
+    color: var(--text-subtle);
+  }
+
+  .facts dd {
+    font-weight: 500;
+  }
+
+  @media (min-width: 64rem) {
+    .about {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+      gap: var(--s-9);
+    }
+  }
+</style>

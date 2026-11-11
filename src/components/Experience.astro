@@ -1,0 +1,326 @@
+---
+import Icon from "./Icon.astro";
+import { experience, education, certifications } from "../data/site";
+
+const fmt = (ym: string) => {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+};
+
+const duration = (start: string, end: string | null) => {
+  const [sy, sm] = start.split("-").map(Number);
+  const now = new Date();
+  const [ey, em] = end ? end.split("-").map(Number) : [now.getUTCFullYear(), now.getUTCMonth() + 1];
+  const months = (ey - sy) * 12 + (em - sm) + 1;
+  const y = Math.floor(months / 12);
+  const m = months % 12;
+  return [y ? `${y} yr` : "", m ? `${m} mo` : ""].filter(Boolean).join(" ");
+};
+---
+
+<section id="work" class="section" aria-labelledby="work-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <h2 id="work-title">From shipping .NET for pharma to auditing critical infrastructure.</h2>
+      <p>
+        Two roles, one through-line: understanding systems well enough to judge their risk, and explaining that risk to
+        the people who decide.
+      </p>
+    </div>
+
+    <ol class="timeline">
+      {
+        experience.map((job, i) => (
+          <li class="job card spot" data-reveal data-i={i}>
+            <div class="job-rail" aria-hidden="true">
+              <span class:list={["job-node", !job.end && "is-current"]} />
+            </div>
+            <div class="job-body">
+              <header class="job-head">
+                <div>
+                  <h3>{job.role}</h3>
+                  <p class="job-company">
+                    {job.company}
+                    <span class="sep" aria-hidden="true">/</span>
+                    {job.location}
+                  </p>
+                </div>
+                <p class="job-dates mono num">
+                  <span>
+                    {fmt(job.start)} to {job.end ? fmt(job.end) : "present"}
+                  </span>
+                  <span class="job-dur">{duration(job.start, job.end)}</span>
+                </p>
+              </header>
+              <p class="job-summary">{job.summary}</p>
+              <ul class="job-list">
+                {job.highlights.map((h) => (
+                  <li>{h}</li>
+                ))}
+              </ul>
+              <ul class="job-stack" aria-label="Frameworks and tools">
+                {job.stack.map((s) => (
+                  <li class="chip">{s}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="creds">
+      <div class="creds-col" data-reveal>
+        <h3 class="creds-title">Education</h3>
+        <ul class="edu">
+          {
+            education.map((e) => (
+              <li>
+                <p class="edu-title">
+                  {e.title}
+                  {e.status && <span class="pill">{e.status}</span>}
+                </p>
+                <p class="edu-school">{e.school}</p>
+                <p class="edu-detail">{e.detail}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="creds-col" data-reveal data-i="1">
+        <h3 class="creds-title">Certifications</h3>
+        <ul class="certs">
+          {
+            certifications.map((c) => (
+              <li>
+                {c.url ? (
+                  <a href={c.url} target="_blank" rel="noopener noreferrer" class="cert cert-link">
+                    <span class="cert-name">{c.name}</span>
+                    <span class="cert-issuer">{c.issuer}</span>
+                    <Icon name="arrow-up-right" size="sm" class="cert-arrow" />
+                  </a>
+                ) : (
+                  <div class="cert">
+                    <span class="cert-name">{c.name}</span>
+                    <span class="cert-issuer">{c.issuer}</span>
+                  </div>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .timeline {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .job {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: var(--s-4);
+    padding: var(--s-6) var(--s-5);
+  }
+
+  .job-rail {
+    display: flex;
+    justify-content: center;
+    padding-top: 0.45rem;
+  }
+
+  .job-node {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    border: 2px solid var(--text-subtle);
+    background: var(--bg);
+  }
+
+  .job-node.is-current {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  .job-body {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .job-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--s-2) var(--s-5);
+  }
+
+  .job-head h3 {
+    font-size: var(--fs-lg);
+    letter-spacing: -0.02em;
+  }
+
+  .job-company {
+    color: var(--text-muted);
+    margin-top: var(--s-1);
+  }
+
+  .sep {
+    color: var(--text-subtle);
+    margin-inline: var(--s-1);
+  }
+
+  .job-dates {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .job-dur {
+    color: var(--text-subtle);
+  }
+
+  .job-summary {
+    color: var(--text);
+    max-width: 52rem;
+  }
+
+  .job-list {
+    display: grid;
+    gap: var(--s-2);
+    max-width: 52rem;
+  }
+
+  .job-list li {
+    position: relative;
+    padding-left: var(--s-5);
+    color: var(--text-muted);
+  }
+
+  .job-list li::before {
+    content: "";
+    position: absolute;
+    left: 0.25rem;
+    top: 0.68em;
+    width: 0.5rem;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .job-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  .creds {
+    display: grid;
+    gap: var(--s-7);
+    margin-top: var(--s-9);
+  }
+
+  .creds-title {
+    font-size: var(--fs-lg);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--s-5);
+  }
+
+  .edu {
+    display: grid;
+  }
+
+  .edu li {
+    padding-block: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .edu-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-2);
+    font-weight: 550;
+  }
+
+  .pill {
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    padding: 1px var(--s-2);
+    border-radius: 999px;
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .edu-school {
+    color: var(--text-muted);
+  }
+
+  .edu-detail {
+    color: var(--text-subtle);
+    font-size: var(--fs-sm);
+    margin-top: var(--s-1);
+  }
+
+  .certs {
+    display: grid;
+  }
+
+  .cert {
+    position: relative;
+    display: grid;
+    gap: 2px;
+    padding: var(--s-4) var(--s-6) var(--s-4) 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .cert-name {
+    font-weight: 500;
+  }
+
+  .cert-issuer {
+    color: var(--text-subtle);
+    font-size: var(--fs-sm);
+  }
+
+  .cert-link {
+    transition: color var(--dur-2);
+  }
+
+  .cert-link:hover .cert-name {
+    color: var(--accent);
+  }
+
+  :global(.cert-arrow) {
+    position: absolute;
+    right: 0;
+    top: var(--s-4);
+    color: var(--text-subtle);
+    transition: transform var(--dur-2) var(--ease-out), color var(--dur-2);
+  }
+
+  .cert-link:hover :global(.cert-arrow) {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  @media (min-width: 48rem) {
+    .job {
+      grid-template-columns: 2rem minmax(0, 1fr);
+      padding: var(--s-7) var(--s-6);
+    }
+
+    .job-dates {
+      align-items: flex-end;
+    }
+
+    .creds {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s-8);
+    }
+  }
+</style>
