@@ -18,15 +18,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22.23.4
           cache: npm
+      # Requires Settings > Pages > Source: "GitHub Actions" (one-time, by a repo admin).
       - id: pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - run: npm ci
       - run: npm run check
       - run: npm run build
